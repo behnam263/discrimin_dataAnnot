@@ -4,10 +4,11 @@ import {
     Switch,
     Route,
     useParams,
+    NavLink,
   } from "react-router-dom";
   import { Navbar,Nav,NavDropdown,Form,FormControl,Button } from 'react-bootstrap'
-  import Upload from './upload.js';
-
+  import UploadComp from './comp_upload.js';
+  import FileListComp from './comp_file_list.js'
 
 
 class NavbarHeader extends React.Component{
@@ -19,11 +20,12 @@ class NavbarHeader extends React.Component{
                     <div className="col-md-12">
                         <Router>
                             <Navbar bg="dark" variant="dark" expand="lg" sticky="top">
-                                  <Navbar.Brand href="#"> <img src='/static/frontend/media/logo.png'  alt="Logo" height="50" width="50" /> Annotation System </Navbar.Brand>
+                                  <Navbar.Brand href="/"> <img src='/static/frontend/media/logo.png'  alt="Logo" height="50" width="50" /> Annotation System </Navbar.Brand>
                                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                                 <Navbar.Collapse id="basic-navbar-nav">
                                     <Nav className="mr-auto">
                                     <Nav.Link href="/">Upload</Nav.Link>
+                                    <Nav.Link as={NavLink} to="/filelist">File List</Nav.Link>
                                     <NavDropdown title="Dropdown" id="basic-nav-dropdown">
                                         <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
                                         <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>
@@ -41,10 +43,10 @@ class NavbarHeader extends React.Component{
                             <br />
                             <Switch>
                                 <Route exact path="/">
-                                    <Upload />
+                                    <UploadComp />
                                 </Route>
-                                <Route path="/about-us">
-
+                                <Route path="/filelist">
+                                    <FileListComp />
                                 </Route>
                                 <Route path="/contact-us">
 

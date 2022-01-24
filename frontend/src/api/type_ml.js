@@ -1,4 +1,4 @@
-class ML{
+class ml{
 
     constructor(id, model, name, description){
         if(id)
@@ -15,10 +15,10 @@ class ML{
      * @return {Car} the newly created Car object
      */
     static from(json) {
-        const t =  Object.assign(new ML(), json);
+        const t =  Object.assign(new ml(), json);
         return t;
     }
 
 }
 
-export default ML;
+export default ml;

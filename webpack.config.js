@@ -1,5 +1,4 @@
 module.exports={
-
  output: {
                       path: __dirname +"/frontend/static/frontend",
                     filename: "main.js"

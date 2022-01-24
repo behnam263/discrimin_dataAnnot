@@ -1,9 +1,9 @@
 
 import axios from 'axios';
 import React,{Component} from 'react';
-import API from "../api/Api.js"
+import API from "../api/api.js"
 
-class Upload extends Component {
+class EvalComp extends Component {
 
     state = {
 
@@ -96,4 +96,4 @@ class Upload extends Component {
     }
   }
 
-  export default Upload;
+  export default EvalComp;
