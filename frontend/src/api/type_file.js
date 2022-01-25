@@ -1,4 +1,4 @@
-class filetype{
+class FileType{
 
     constructor(name, description){
     this.name=name;
@@ -13,4 +13,4 @@ class filetype{
 
 }
 
-export default filetype;
+export default FileType;

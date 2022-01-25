@@ -16,8 +16,9 @@ class FileListComp extends Component {
      }
     createRows = (r) => {
         return (
-            <tr key={r}>
-                <td>{r}</td>
+            <tr key={r.name}>
+                <td>{r.name}</td>
+                <td>{r.description}</td>
                 <td>{
                         <Button variant="danger" className="ml-2" type="button"
                             onClick={() => this.selectRows(r)}>select</Button>
@@ -29,6 +30,7 @@ class FileListComp extends Component {
   componentDidMount() {
              API.getFileList()
                     .then((r) => {
+                     console.log(r);
                         this.setState({ listOfFiles: r });
                     })
                     .catch((errorObj) => {
