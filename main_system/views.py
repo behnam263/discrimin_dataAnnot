@@ -24,19 +24,34 @@ from rest_framework.parsers import MultiPartParser, FormParser, FileUploadParser
 from rest_framework.response import Response
 from main_system.business.evals import Evals
 from main_system.business.get_data import GetData
-
+import json
 from main_system import views
 
+
 def getFileList(request):
-    getData=GetData([])
+    getData = GetData([])
     getData.getFileList()
-    datajson=getData.toJSON()
+    datajson = getData.toJSON()
     return HttpResponse(datajson, content_type="application/json")
 
-def sayhello(request):
-    evals=Evals()
+
+def getDataList(request):
     if 'filename' in request.GET:
-        filename=request.GET['filename']
+        filename = request.GET['filename']
+        if filename is not None and filename != '':
+            getData = GetData([])
+            datacl= getData.getDataList(filename)
+            datajson = json.dumps(datacl)
+            #datajson = datacl.toJSON()
+            return HttpResponse(datajson, content_type="application/json")
+    else:
+        return render(request, 'graph.html', {'chart': None})
+
+
+def sayhello(request):
+    evals = Evals()
+    if 'filename' in request.GET:
+        filename = request.GET['filename']
         if filename is not None and filename != '':
             (x, y) = evals.baysian(filename)
             chart = evals.get_plot(x, y)
@@ -45,6 +60,7 @@ def sayhello(request):
             return render(request, 'graph.html', {'chart': chart})
     else:
         return render(request, 'graph.html', {'chart': None})
+
 
 class FileUploadView(views.APIView):
     parser_classes = [FileUploadParser]

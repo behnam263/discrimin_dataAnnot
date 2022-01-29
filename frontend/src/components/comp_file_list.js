@@ -12,7 +12,12 @@ class FileListComp extends Component {
         this.state = { listOfFiles: [] }
     }
      selectRows = (r) => {
-     console.log(r)
+     API.getDataList(r).then((r) => {
+                     console.log(r);
+                    })
+                    .catch((errorObj) => {
+                        console.log(errorObj);
+                    });
      }
     createRows = (r) => {
         return (

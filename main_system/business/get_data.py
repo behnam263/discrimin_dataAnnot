@@ -4,7 +4,6 @@ import json
 
 class GetData:
     fileList = []
-
     def __init__(self,fileList):
         self.fileList=fileList
 
@@ -16,3 +15,9 @@ class GetData:
         return self.fileList
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,sort_keys=True, indent=4)
+
+    def getDataList(self,path):
+        mfile = FileMGM().getdataFrameofFile(FileMGM().getUploadFolder()+path)
+        lists = mfile.columns.to_list()
+
+        return lists
