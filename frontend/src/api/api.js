@@ -1,4 +1,5 @@
 import FileType from './type_file.js';
+import DataFrameType from './type_data.js'
 
 const baseURL = "/main_system";
 
@@ -17,13 +18,12 @@ async function getFileList() {
 
 }
 
-async function getDataList(filename) {
+async function getHeadDataList(filename) {
     let url = "/getDataList";
-    console.log(baseURL + url+"?filename="+filename.name.toString());
     const response =await fetch(baseURL + url+"?filename="+filename.name.toString());
      const resultJson = await response.json();
     if(response.ok){
-        return resultJson;
+       return resultJson;
     } else {
         let err = {status: response.status, errObj:userJson};
         throw err;  // An object with the error coming from the server
@@ -31,5 +31,5 @@ async function getDataList(filename) {
 
 }
 
-const API = { getFileList ,getDataList} ;
+const API = { getFileList ,getHeadDataList} ;
 export default API;

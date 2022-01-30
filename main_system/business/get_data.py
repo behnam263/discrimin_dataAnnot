@@ -20,4 +20,4 @@ class GetData:
         mfile = FileMGM().getdataFrameofFile(FileMGM().getUploadFolder()+path)
         lists = mfile.columns.to_list()
 
-        return lists
+        return mfile

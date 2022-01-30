@@ -40,8 +40,9 @@ def getDataList(request):
         filename = request.GET['filename']
         if filename is not None and filename != '':
             getData = GetData([])
-            datacl= getData.getDataList(filename)
-            datajson = json.dumps(datacl)
+            datacl = getData.getDataList(filename)
+            datajson = datacl.head().to_json(orient="records")
+            #datajson = json.dumps(datacl)
             #datajson = datacl.toJSON()
             return HttpResponse(datajson, content_type="application/json")
     else:

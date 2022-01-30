@@ -15,4 +15,5 @@ class FileMGM:
 
     def getdataFrameofFile(self,path):
         df = pd.read_csv(path)
+        df["id"] = df.index + 1
         return df

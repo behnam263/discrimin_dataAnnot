@@ -1,71 +1,81 @@
-
-import axios from 'axios';
-import React,{Component} from 'react';
-import API from "../api/api.js"
-import Table from 'react-bootstrap/Table';
-import Button from 'react-bootstrap/Button';
+import axios from "axios";
+import React, { Component } from "react";
+import API from "../api/api.js";
+import Table from "react-bootstrap/Table";
+import Button from "react-bootstrap/Button";
+import ColSelection from "./comp_colsel.js";
 
 class FileListComp extends Component {
-
-    constructor(props) {
-        super(props);
-        this.state = { listOfFiles: [] }
-    }
-     selectRows = (r) => {
-     API.getDataList(r).then((r) => {
-                     console.log(r);
-                    })
-                    .catch((errorObj) => {
-                        console.log(errorObj);
-                    });
-     }
-    createRows = (r) => {
-        return (
-            <tr key={r.name}>
-                <td>{r.name}</td>
-                <td>{r.description}</td>
-                <td>{
-                        <Button variant="danger" className="ml-2" type="button"
-                            onClick={() => this.selectRows(r)}>select</Button>
-                }</td>
-            </tr>
-        );
-    }
+  constructor(props) {
+    super(props);
+    this.state = { S_listOfFiles: [], S_data: [] };
+  }
+  selectRows = (r) => {
+    API.getHeadDataList(r)
+      .then((d) => {
+        this.setState({
+          S_data: d,
+        });
+      })
+      .catch((errorObj) => {
+        console.log(errorObj);
+      });
+  };
+  createRows = (r) => {
+    return (
+      <tr key={r.name}>
+        <td>{r.name}</td>
+        <td>{r.description}</td>
+        <td>
+          {
+            <Button
+              variant="danger"
+              className="ml-2"
+              type="button"
+              onClick={() => this.selectRows(r)}
+            >
+              select
+            </Button>
+          }
+        </td>
+      </tr>
+    );
+  };
 
   componentDidMount() {
-             API.getFileList()
-                    .then((r) => {
-                     console.log(r);
-                        this.setState({ listOfFiles: r });
-                    })
-                    .catch((errorObj) => {
-                        console.log(errorObj);
-                    });
-    }
-    render() {
-
-      return (
-        <div>
-            <h3>
-             File List
-            </h3>
-            <div>
-               <Table striped bordered hover variant="white">
-                        <thead className="BackgroundThemeColor">
-                            <tr>
-                                <th>File</th>
-                                <th>Description</th>
-                                <th>Select</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            { this.state.listOfFiles &&  this.state.listOfFiles.map(this.createRows)}
-                        </tbody>
-                    </Table>
-            </div>
-        </div>
-      );
-    }
+    API.getFileList()
+      .then((r) => {
+        this.setState({ S_listOfFiles: r });
+      })
+      .catch((errorObj) => {
+        console.log(errorObj);
+      });
   }
+  render() {
+    return (
+      <div>
+        <h3>File List</h3>
+        <div>
+          <Table striped bordered hover variant="white">
+            <thead className="BackgroundThemeColor">
+              <tr>
+                <th>File</th>
+                <th>Description</th>
+                <th>Select</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.state.S_listOfFiles &&
+                this.state.S_listOfFiles.map(this.createRows)}
+            </tbody>
+          </Table>
+        </div>
+        <div>
+          <ColSelection data={this.state.S_data} />
+        </div>
+      </div>
+    );
+  }
+}
 
-  export default FileListComp;
+export default FileListComp;
