@@ -1,9 +1,9 @@
 class ColumnType{
 
-    constructor(field , headerName , width  ){
+    constructor(field , headerName , width ,renderHeader ){
     this.field=field;
     this.headerName=headerName;
-
+    this.renderHeader=renderHeader;
     this.width=width;
     }
 
