@@ -1,5 +1,6 @@
 import axios from "axios";
-import React, { Component } from "react";
+import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import API from "../api/api.js";
 import ColumnType from "../api/type_column.js";
 import ListGroup from "react-bootstrap/ListGroup";
@@ -8,57 +9,53 @@ import { createTheme } from "@mui/material/styles";
 import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 
-class ColSelection extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { theme: "", selectedColumns: [] };
-    let ltheme = createTheme({
-      palette: {
-        primary: {
-          main: "#FFFFFF",
-        },
-      },
-    });
-    this.setState({ theme: ltheme });
-  }
-  handleChange = (event) => {
-    console.log(event.target.ariaLabel);
-    console.log(event.target.checked);
-     console.log(this.state.selectedColumns);
+const ColSelection = (props) => {
+ let { data } = props;
+    const history = useHistory();
+
+    const [selectedColumns, setSelectedColumns] = useState([]);
+
+  const handleChange = (event) => {
+   event.preventDefault();
     if (
       event.target.checked &&
-      !this.state.selectedColumns.includes(event.target.ariaLabel)
+      !selectedColumns.includes(event.target.ariaLabel)
     ) {
-      let selectedCols = [...this.state.selectedColumns];
+      let selectedCols = [...selectedColumns];
       selectedCols.push({ value: event.target.ariaLabel });
-      this.setState({ selectedColumns: selectedCols });
+      setSelectedColumns(selectedCols);
     } else if (
       !event.target.checked &&
-      this.state.selectedColumns.includes(event.target.ariaLabel)
+      selectedColumns.filter(obj => { return obj.value === event.target.ariaLabel}).length>0
     ) {
-      let selectedCols = [...this.state.selectedColumns];
-      selectedCols.splice(selectedCols.indexOf(event.target.ariaLabel), 1);
-      this.setState({ selectedColumns: selectedCols });
+      let selectedCols = [...selectedColumns];
+      selectedCols.splice(selectedColumns.map(function(e) { return e.value; }).indexOf(event.target.ariaLabel), 1);
+      setSelectedColumns(selectedCols);
     }
+
   };
-  onColumnsApplyClick = () => {
-    console.log(this.state.selectedColumns);
+  const onColumnsApplyClick = (event) => {
+   event.preventDefault();
+     history.push({
+     pathname: '/eval',
+     columns:selectedColumns
+     });
   };
-  render() {
+
     return (
       <div>
         <h3>Preview of selected file:</h3>
-        <Button variant="contained" onClick={this.onColumnsApplyClick} >Apply selected Columns</Button>
+        <Button variant="contained" onClick={onColumnsApplyClick} >Apply selected Columns</Button>
         <div style={{ height: 400, width: "100%", color: "white" }}>
-          {this.props.data != null && this.props.data.length > 0 ? (
+          {data != null && data.length > 0 ? (
             <DataGrid
-              rows={this.props.data}
-              columns={Object.keys(this.props.data[0]).map(
+              rows={data}
+              columns={Object.keys(data[0]).map(
                 (x) =>
                   new ColumnType(x, x, 150, (headerparams) => (
                     <div>
                       <Checkbox
-                        onChange={this.handleChange}
+                        onChange={handleChange}
                         inputProps={{
                           "aria-label": headerparams.colDef.headerName,
                         }}
@@ -67,13 +64,12 @@ class ColSelection extends Component {
                     </div>
                   ))
               )}
-              theme={this.state.theme}
             />
           ) : null}
         </div>
       </div>
     );
-  }
+
 }
 
 export default ColSelection;

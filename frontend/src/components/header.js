@@ -16,6 +16,7 @@ import {
 } from "react-bootstrap";
 import UploadComp from "./comp_upload.js";
 import FileListComp from "./comp_file_list.js";
+import EvalComp from "./comp_eval.js";
 
 class NavbarHeader extends React.Component {
   render() {
@@ -62,12 +63,6 @@ class NavbarHeader extends React.Component {
                     className="d-flex"
                     style={{ position: "absolute", right: "0" }}
                   >
-                    <FormControl
-                      type="text"
-                      placeholder="Search"
-                      className="mr-sm-2"
-                    />
-                    <Button variant="outline-success">Search</Button>
                   </Form>
                 </Navbar.Collapse>
               </Navbar>
@@ -78,6 +73,9 @@ class NavbarHeader extends React.Component {
                 </Route>
                 <Route path="/filelist">
                   <FileListComp />
+                </Route>
+                <Route path="/eval">
+                  <EvalComp />
                 </Route>
                 <Route path="/contact-us"></Route>
               </Switch>
