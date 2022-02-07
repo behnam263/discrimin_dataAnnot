@@ -1,3 +1,5 @@
+from rest_framework.decorators import api_view
+
 from .serializers import FileSerializer
 
 from django.http import HttpResponse
@@ -24,6 +26,8 @@ from rest_framework.parsers import MultiPartParser, FormParser, FileUploadParser
 from rest_framework.response import Response
 from main_system.business.evals import Evals
 from main_system.business.get_data import GetData
+from main_system.business.custom_eval import Custom_Evals
+from django.views.decorators.csrf import csrf_exempt
 import json
 from main_system import views
 
@@ -61,6 +65,22 @@ def sayhello(request):
             return render(request, 'graph.html', {'chart': chart})
     else:
         return render(request, 'graph.html', {'chart': None})
+
+@csrf_exempt
+@api_view(['POST'])
+def eval_custom_code(request):
+    get_data = GetData([])
+    return_value = ''
+    if 'evalCode' in request.data:
+        evalCode = request.data['evalCode']
+        columns = request.data['columns']
+        fileName = request.data['fileName']
+        if evalCode is not None and evalCode != '':
+            code = get_data.gettextfile(evalCode+'.txt')
+            custom_eval = Custom_Evals()
+            return_value = custom_eval.custom_code_run(code,columns,fileName)
+
+    return HttpResponse(return_value.to_json(orient="records"), content_type="application/json")
 
 
 class FileUploadView(views.APIView):

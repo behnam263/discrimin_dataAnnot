@@ -17,7 +17,17 @@ class GetData:
         return json.dumps(self, default=lambda o: o.__dict__,sort_keys=True, indent=4)
 
     def getDataList(self,path):
-        mfile = FileMGM().getdataFrameofFile(FileMGM().getUploadFolder()+path)
-        lists = mfile.columns.to_list()
+        filemgm=FileMGM()
+        if filemgm.isFileExists(filemgm.getUploadFolder() + path):
+            mfile = filemgm.getdataFrameofFile(filemgm.getUploadFolder()+path)
+            return mfile
+        else:
+            return None
 
-        return mfile
+    def gettextfile(self,path):
+        filemgm=FileMGM()
+        if filemgm.isFileExists(FileMGM().getFormulaFolder() + path):
+            mfile = filemgm.gettextFile(FileMGM().getFormulaFolder()+path)
+            return mfile
+        else:
+            return None

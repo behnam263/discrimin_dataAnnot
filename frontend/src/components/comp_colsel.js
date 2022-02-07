@@ -10,26 +10,25 @@ import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 
 const ColSelection = (props) => {
- let { data } = props;
+ let { data , fileName} = props;
     const history = useHistory();
-
     const [selectedColumns, setSelectedColumns] = useState([]);
 
   const handleChange = (event) => {
    event.preventDefault();
     if (
       event.target.checked &&
-      !selectedColumns.includes(event.target.ariaLabel)
+      !selectedColumns.includes(event.target.id.toString())
     ) {
       let selectedCols = [...selectedColumns];
-      selectedCols.push({ value: event.target.ariaLabel });
+      selectedCols.push({ value: event.target.id.toString() });
       setSelectedColumns(selectedCols);
     } else if (
       !event.target.checked &&
-      selectedColumns.filter(obj => { return obj.value === event.target.ariaLabel}).length>0
+      selectedColumns.filter(obj => { return obj.value === event.target.id.toString()}).length>0
     ) {
       let selectedCols = [...selectedColumns];
-      selectedCols.splice(selectedColumns.map(function(e) { return e.value; }).indexOf(event.target.ariaLabel), 1);
+      selectedCols.splice(selectedColumns.map(function(e) { return e.value; }).indexOf(event.target.id.toString()), 1);
       setSelectedColumns(selectedCols);
     }
 
@@ -38,7 +37,8 @@ const ColSelection = (props) => {
    event.preventDefault();
      history.push({
      pathname: '/eval',
-     columns:selectedColumns
+     columns:selectedColumns,
+     fileName:fileName
      });
   };
 
@@ -51,13 +51,14 @@ const ColSelection = (props) => {
             <DataGrid
               rows={data}
               columns={Object.keys(data[0]).map(
-                (x) =>
+                (x,lindex) =>
                   new ColumnType(x, x, 150, (headerparams) => (
                     <div>
                       <Checkbox
                         onChange={handleChange}
                         inputProps={{
                           "aria-label": headerparams.colDef.headerName,
+                          "id": lindex,
                         }}
                       />
                       {headerparams.colDef.headerName}

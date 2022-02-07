@@ -8,9 +8,12 @@ import ColSelection from "./comp_colsel.js";
 class FileListComp extends Component {
   constructor(props) {
     super(props);
-    this.state = { S_listOfFiles: [], S_data: [] };
+    this.state = { S_listOfFiles: [], S_data: [],S_selectedFile:'' };
   }
   selectRows = (r) => {
+    this.setState({
+          S_selectedFile: r.name.toString(),
+        });
     API.getHeadDataList(r)
       .then((d) => {
         this.setState({
@@ -20,6 +23,7 @@ class FileListComp extends Component {
       .catch((errorObj) => {
         console.log(errorObj);
       });
+      event.preventDefault();
   };
   createRows = (r) => {
     return (
@@ -71,7 +75,7 @@ class FileListComp extends Component {
           </Table>
         </div>
         <div>
-          <ColSelection data={this.state.S_data} />
+          <ColSelection data={this.state.S_data}  fileName={this.state.S_selectedFile} />
         </div>
       </div>
     );
