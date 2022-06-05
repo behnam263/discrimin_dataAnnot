@@ -17,7 +17,8 @@ from scipy.stats.stats import pearsonr
 # Create your views here.
 
 from django.http import HttpResponse
-
+import pandas as pd
+from io import StringIO
 import os.path
 from django.shortcuts import render
 from django.core.files.storage import FileSystemStorage
@@ -46,8 +47,8 @@ def getDataList(request):
             getData = GetData([])
             datacl = getData.getDataList(filename)
             datajson = datacl.head().to_json(orient="records")
-            #datajson = json.dumps(datacl)
-            #datajson = datacl.toJSON()
+            # datajson = json.dumps(datacl)
+            # datajson = datacl.toJSON()
             return HttpResponse(datajson, content_type="application/json")
     else:
         return render(request, 'graph.html', {'chart': None})
@@ -66,6 +67,7 @@ def sayhello(request):
     else:
         return render(request, 'graph.html', {'chart': None})
 
+
 @csrf_exempt
 @api_view(['POST'])
 def eval_custom_code(request):
@@ -76,11 +78,21 @@ def eval_custom_code(request):
         columns = request.data['columns']
         fileName = request.data['fileName']
         if evalCode is not None and evalCode != '':
-            code = get_data.gettextfile(evalCode+'.txt')
+            code = get_data.gettextfile(evalCode + '.txt')
             custom_eval = Custom_Evals()
-            return_value = custom_eval.custom_code_run(code,columns,fileName)
+            return_value = custom_eval.custom_code_run(code, columns, fileName)
+            result = None
+            if( len(return_value[1]) > 0):
+                error_string = return_value[1]
+                error_string = "Error;{0};".format(error_string)
+                error_string = StringIO(error_string)
+                errors = pd.read_csv(error_string, sep=";")
+                result = pd.concat([errors, return_value[0]], axis=1)
+            else:
+                result = return_value[0]
 
-    return HttpResponse(return_value.to_json(orient="records"), content_type="application/json")
+            result = result.to_json(orient="records")
+    return HttpResponse(result, content_type="application/json")
 
 
 class FileUploadView(views.APIView):

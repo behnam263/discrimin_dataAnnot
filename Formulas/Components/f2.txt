@@ -1,0 +1,5 @@
+def f():
+    result = []
+    for i in range(0, len(values)):
+        result.append(datavalues.iloc[:, int(i)].value_counts()/len(datavalues.iloc[:, int(i)]))
+    return result

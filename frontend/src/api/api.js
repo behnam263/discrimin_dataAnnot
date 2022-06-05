@@ -42,6 +42,8 @@ async function postCustomEval(evalCode,columnNames,fileName) {
     body: parameters
     });
      const resultJson = await response.json();
+       console.log(resultJson);
+
     if(response.ok){
        return resultJson;
     } else {

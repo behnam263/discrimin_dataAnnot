@@ -59,7 +59,7 @@ class FileListComp extends Component {
     return (
       <div>
         <h3>File List</h3>
-        <div>
+        <div  style={{ height: 400, width: "80%" }}>
           <Table striped bordered hover variant="white">
             <thead className="BackgroundThemeColor">
               <tr>
