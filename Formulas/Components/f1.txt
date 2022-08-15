@@ -1,5 +1,0 @@
-def f():
-    resultArray=[]
-    for i in range(0,columnsCount):
-        resultArray.append(values.iloc[:, int(i)].value_counts())
-    return resultArray

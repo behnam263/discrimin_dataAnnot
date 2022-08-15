@@ -26,8 +26,9 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser, FileUploadParser
 from rest_framework.response import Response
 from main_system.business.evals import Evals
+
 from main_system.business.get_data import GetData
-from main_system.business.custom_eval import Custom_Evals
+from main_system.business.custom_eval import Custom_Eval
 from django.views.decorators.csrf import csrf_exempt
 import json
 from main_system import views
@@ -35,8 +36,15 @@ from main_system import views
 
 def getFileList(request):
     getData = GetData([])
-    getData.getFileList()
-    datajson = getData.toJSON()
+    getData.get_file_list()
+    datajson = getData.to_json()
+    return HttpResponse(datajson, content_type="application/json")
+
+
+def getEvalList(request):
+    getData = GetData([])
+    datacl = getData.get_eval_list()
+    datajson = datacl.to_json(orient="records")
     return HttpResponse(datajson, content_type="application/json")
 
 
@@ -45,7 +53,7 @@ def getDataList(request):
         filename = request.GET['filename']
         if filename is not None and filename != '':
             getData = GetData([])
-            datacl = getData.getDataList(filename)
+            datacl = getData.get_data_list(filename)
             datajson = datacl.head().to_json(orient="records")
             # datajson = json.dumps(datacl)
             # datajson = datacl.toJSON()
@@ -74,15 +82,17 @@ def eval_custom_code(request):
     get_data = GetData([])
     return_value = ''
     if 'evalCode' in request.data:
-        evalCode = request.data['evalCode']
+        eval_code = request.data['evalCode']
         columns = request.data['columns']
-        fileName = request.data['fileName']
-        if evalCode is not None and evalCode != '':
-            code = get_data.gettextfile(evalCode + '.txt')
-            custom_eval = Custom_Evals()
-            return_value = custom_eval.custom_code_run(code, columns, fileName)
+        file_name = request.data['fileName']
+        if eval_code is not None and eval_code != '':
+            (eval_file, eval_component) = get_data.get_eval_code_file(eval_code)
+            code = get_data.get_text_file(eval_file)
+            components_file_content = get_data.get_output_component_file(eval_component)
+            custom_eval = Custom_Eval()
+            return_value = custom_eval.custom_code_run(code, columns, file_name)
             result = None
-            if( len(return_value[1]) > 0):
+            if len(return_value[1]) > 0:
                 error_string = return_value[1]
                 error_string = "Error;{0};".format(error_string)
                 error_string = StringIO(error_string)
@@ -92,7 +102,8 @@ def eval_custom_code(request):
                 result = return_value[0]
 
             result = result.to_json(orient="records")
-    return HttpResponse(result, content_type="application/json")
+            result = result + ";" + components_file_content
+    return HttpResponse(result, content_type="text/plain")
 
 
 class FileUploadView(views.APIView):

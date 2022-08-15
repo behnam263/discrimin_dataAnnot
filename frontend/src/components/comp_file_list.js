@@ -8,12 +8,12 @@ import ColSelection from "./comp_colsel.js";
 class FileListComp extends Component {
   constructor(props) {
     super(props);
-    this.state = { S_listOfFiles: [], S_data: [],S_selectedFile:'' };
+    this.state = { S_listOfFiles: [], S_data: [], S_selectedFile: "" };
   }
   selectRows = (r) => {
     this.setState({
-          S_selectedFile: r.name.toString(),
-        });
+      S_selectedFile: r.name.toString(),
+    });
     API.getHeadDataList(r)
       .then((d) => {
         this.setState({
@@ -23,7 +23,7 @@ class FileListComp extends Component {
       .catch((errorObj) => {
         console.log(errorObj);
       });
-      event.preventDefault();
+    event.preventDefault();
   };
   createRows = (r) => {
     return (
@@ -58,24 +58,33 @@ class FileListComp extends Component {
   render() {
     return (
       <div>
-        <h3>File List</h3>
-        <div  style={{ height: 400, width: "80%" }}>
-          <Table striped bordered hover variant="white">
-            <thead className="BackgroundThemeColor">
-              <tr>
-                <th>File</th>
-                <th>Description</th>
-                <th>Select</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.state.S_listOfFiles &&
-                this.state.S_listOfFiles.map(this.createRows)}
-            </tbody>
-          </Table>
-        </div>
-        <div>
-          <ColSelection data={this.state.S_data}  fileName={this.state.S_selectedFile} />
+        <div className="row d-flex justify-content-center text-center">
+          <div className="col-1"></div>
+          <div className="col-10">
+          <h3>File List</h3>
+            <div style={{ height: 400, width: "80%" }}>
+              <Table striped bordered hover variant="white">
+                <thead className="BackgroundThemeColor">
+                  <tr>
+                    <th>File</th>
+                    <th>Description</th>
+                    <th>Select</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {this.state.S_listOfFiles &&
+                    this.state.S_listOfFiles.map(this.createRows)}
+                </tbody>
+              </Table>
+            </div>
+            <div>
+              <ColSelection
+                data={this.state.S_data}
+                fileName={this.state.S_selectedFile}
+              />
+            </div>
+          </div>
+          <div className="col-1"></div>
         </div>
       </div>
     );

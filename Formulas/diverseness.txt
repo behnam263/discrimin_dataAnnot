@@ -1,5 +1,5 @@
 def f():
     result = []
-    for i in range(0, len(values.columns)-1):
+    for i in range(0, columns_count):
         result.append(values.iloc[:, int(i)].value_counts()/len(values.iloc[:, int(i)]))
     return result

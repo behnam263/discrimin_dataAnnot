@@ -17,6 +17,7 @@ import {
 import UploadComp from "./comp_upload.js";
 import FileListComp from "./comp_file_list.js";
 import EvalComp from "./comp_eval.js";
+import WelcomeScreen from "./welcome_screen.js";
 
 class NavbarHeader extends React.Component {
   render() {
@@ -39,37 +40,21 @@ class NavbarHeader extends React.Component {
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                   <Nav className="mr-auto">
-                    <Nav.Link href="/">Upload</Nav.Link>
+                    <Nav.Link href="/">Welcome</Nav.Link>
                     <Nav.Link as={NavLink} to="/filelist">
-                      File List
+                      Evaluation
                     </Nav.Link>
-                    <NavDropdown title="Dropdown" id="basic-nav-dropdown">
-                      <NavDropdown.Item href="#action/3.1">
-                        Action
-                      </NavDropdown.Item>
-                      <NavDropdown.Item href="#action/3.2">
-                        Another action
-                      </NavDropdown.Item>
-                      <NavDropdown.Item href="#action/3.3">
-                        Something
-                      </NavDropdown.Item>
-                      <NavDropdown.Divider />
-                      <NavDropdown.Item href="#action/3.4">
-                        Separated link
-                      </NavDropdown.Item>
-                    </NavDropdown>
                   </Nav>
                   <Form
                     className="d-flex"
                     style={{ position: "absolute", right: "0" }}
-                  >
-                  </Form>
+                  ></Form>
                 </Navbar.Collapse>
               </Navbar>
               <br />
               <Switch>
                 <Route exact path="/">
-                  <UploadComp />
+                  <WelcomeScreen />
                 </Route>
                 <Route path="/filelist">
                   <FileListComp />
