@@ -12,6 +12,9 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button"; 
+import parse from "html-react-parser";
+
 
 import Grid from "@mui/material/Grid";
 import List from "@mui/material/List";
@@ -19,8 +22,8 @@ import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Checkbox from "@mui/material/Checkbox";
-import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
+
 
 let globalHistory = null;
 class EvalComp extends Component {
@@ -32,6 +35,7 @@ class EvalComp extends Component {
       listOfMenuItems: [],
       selectedColumns: "",
       selectedFile: "",
+      outputHtml: "",
     };
 
     API.getEvaluationFilesList()
@@ -54,11 +58,22 @@ class EvalComp extends Component {
   RunEvaluation = (event) => {
     event.preventDefault();
     if (this.state.evals != -1)
-      API.postCustomEval(
+    {
+      let bar = API.postCustomEval(
         this.state.evals,
         this.props.columns.map((x) => x.value),
         this.props.fileName
-      );
+      ).then(function (val) {
+        console.log(this);
+        console.log(val);
+        this.setOutputView(val);
+      }.bind(this));
+      debugger;
+    }
+  };
+
+  setOutputView = (value) => {
+    this.setState({ outputHtml: value });
   };
 
   render() {
@@ -112,6 +127,7 @@ class EvalComp extends Component {
             Run Code
           </Button>
         </div>
+        <div>{parse(this.state.outputHtml)}</div>
       </div>
     );
   }

@@ -1,3 +1,5 @@
+from xml.dom.expatbuilder import parseString
+
 from rest_framework.decorators import api_view
 
 from .serializers import FileSerializer
@@ -30,7 +32,9 @@ from main_system.business.evals import Evals
 from main_system.business.get_data import GetData
 from main_system.business.custom_eval import Custom_Eval
 from django.views.decorators.csrf import csrf_exempt
+
 import json
+
 from main_system import views
 
 
@@ -101,9 +105,38 @@ def eval_custom_code(request):
             else:
                 result = return_value[0]
 
-            result = result.to_json(orient="records")
-            result = result + ";" + components_file_content
+            result = replace_code_with_template(components_file_content, request,result)
+
     return HttpResponse(result, content_type="text/plain")
+
+
+def replace_code_with_template(template_data, request,input_data):
+    template = ""
+    try:
+        d_list = json.loads(template_data)
+        for d in d_list:
+            current_template = ""
+            data = next(iter(d))
+            if data == "button":
+                button_dictionary = d.get('button')
+                button_name = button_dictionary.get('name')
+                button_text = button_dictionary.get('text')
+                current_template = str(render(request, "output_controls/button.html").content)[2:-1]
+                if button_name is not None:
+                    current_template = current_template.replace("{name}", "name=\""+str(button_name)+"\"")
+                if button_text is not None:
+                    current_template = current_template.replace("{text}", str(button_text))
+            if data == "table":
+                current_template = input_data.to_html()
+                current_template = current_template.replace("text-align: right", "text-align: center")
+                current_template = current_template.replace("class=\"dataframe\"", "class=\"table table-hover\"")
+                current_template = current_template.replace("<tr>", "<tr style=\"text-align: center;\">")
+            template += current_template
+
+    except Exception:
+        node = None
+
+    return template
 
 
 class FileUploadView(views.APIView):

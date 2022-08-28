@@ -1,2 +1,8 @@
-<Button/>
-<Table value="Output"/>
+'{"button":{
+"name":"btn1",
+"text":"txt1"
+},
+    "table":{
+  "name":"tb1",
+  "data":"Output"
+  }}'

@@ -50,10 +50,11 @@ async function postCustomEval(evalCode, columnNames, fileName) {
       .then((response) => {
         if (response.ok) {
           response.text().then(function (text) {
-            console.log(output_resolver(text));
+          resolve(text); 
           });
         } else {
-          console.log(output_resolver(text));
+          console.log(text);
+          reject("FAILURE");
         }
       })
       .catch((err) => {
@@ -75,14 +76,14 @@ async function getEvaluationFilesList() {
   }
 }
 
-function output_resolver(input_text){
-    let input_splitted=input_text.split(';');
-    var output=[];
-    var personJSONString=JSON.stringify(input_splitted[0]);
-    output.push(personJSONString);
-    output.push(input_splitted[1]);
-return output;
-}
+/* function output_resolver(input_text) {
+  let input_splitted = input_text.split(";");
+  let output = [];
+  let JSONObject = JSON.parse(input_splitted[0]);
+  output.push(JSONObject);
+  output.push(input_splitted[1]);
+  return output;
+} */
 
 const API = {
   getFileList,
