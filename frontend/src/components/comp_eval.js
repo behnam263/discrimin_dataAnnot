@@ -12,9 +12,8 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button"; 
+import Button from "@mui/material/Button";
 import parse from "html-react-parser";
-
 
 import Grid from "@mui/material/Grid";
 import List from "@mui/material/List";
@@ -23,7 +22,6 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Checkbox from "@mui/material/Checkbox";
 import Paper from "@mui/material/Paper";
-
 
 let globalHistory = null;
 class EvalComp extends Component {
@@ -36,11 +34,11 @@ class EvalComp extends Component {
       selectedColumns: "",
       selectedFile: "",
       outputHtml: "",
+      eval_text: "",
     };
 
     API.getEvaluationFilesList()
       .then((listOfEvaluationsAvailable) => {
-        let tempArray = [];
         let mappedList = [];
         for (const element of listOfEvaluationsAvailable) {
           mappedList.push(new MenuType(element[0], element[1], element[0]));
@@ -53,25 +51,45 @@ class EvalComp extends Component {
   }
   handleComboboxChange = (event) => {
     this.setState({ evals: event.target.value });
+    this.setState({ eval_text: event.target.value });
+  };
+
+  onchangeformulatext = (event) => {
+    this.setState({ eval_text: event.target.value });
+  };
+
+  callEvaluationServer = () => {
+    if (this.state.evals != -1) {
+      let bar = API.postCustomEval(
+        this.state.eval_text,
+        this.props.columns.map((x) => x.value),
+        this.props.fileName
+      ).then(
+        function (val) {
+          console.log(this);
+          console.log(val);
+          this.setOutputView(val);
+        }.bind(this)
+      );
+    }
   };
 
   RunEvaluation = (event) => {
     event.preventDefault();
-    if (this.state.evals != -1)
-    {
-      let bar = API.postCustomEval(
-        this.state.evals,
-        this.props.columns.map((x) => x.value),
-        this.props.fileName
-      ).then(function (val) {
-        console.log(this);
-        console.log(val);
-        this.setOutputView(val);
-      }.bind(this));
-      debugger;
+    let eval_value = this.state.eval_text;
+    debugger;
+    if (
+      eval_value == "undefined" ||
+      eval_value === null ||
+      eval_value.trim() === ""
+    ) {
+      this.setState({ eval_text: this.state.eval }, () => {
+        this.callEvaluationServer();
+      });
+    } else {
+      this.callEvaluationServer();
     }
   };
-
   setOutputView = (value) => {
     this.setState({ outputHtml: value });
   };
@@ -105,18 +123,18 @@ class EvalComp extends Component {
           <Box
             component="form"
             sx={{
-              "& .MuiTextField-root": { m: 1, width: "25ch" },
+              "& .MuiTextField-root": { m: 1, width: "100%" },
             }}
             noValidate
             autoComplete="off"
           >
             <div>
               <TextField
-                id="outlined-multiline-static"
+                id="eval-multiline-edit-text"
                 label="Evaluation Code"
                 multiline
                 rows={4}
-                value={this.state.evals}
+                onChange={this.onchangeformulatext}
               />
             </div>
           </Box>

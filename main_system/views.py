@@ -90,23 +90,31 @@ def eval_custom_code(request):
         columns = request.data['columns']
         file_name = request.data['fileName']
         if eval_code is not None and eval_code != '':
-            (eval_file, eval_component) = get_data.get_eval_code_file(eval_code)
-            code = get_data.get_text_file(eval_file)
-            components_file_content = get_data.get_output_component_file(eval_component)
-            custom_eval = Custom_Eval()
-            return_value = custom_eval.custom_code_run(code, columns, file_name)
-            result = None
-            if len(return_value[1]) > 0:
-                error_string = return_value[1]
-                error_string = "Error;{0};".format(error_string)
-                error_string = StringIO(error_string)
-                errors = pd.read_csv(error_string, sep=";")
-                result = pd.concat([errors, return_value[0]], axis=1)
+            code = ""
+            if eval_code.find("def f():") == -1:
+                (eval_file, eval_component) = get_data.get_eval_code_file(eval_code)
+                code = get_data.get_text_file(eval_file)
+                components_file_content = get_data.get_output_component_file(eval_component)
             else:
-                result = return_value[0]
+                (eval_file, eval_component) = get_data.get_eval_code_file("other")
+                components_file_content = get_data.get_output_component_file(eval_component)
+                code = eval_code
 
-            result = replace_code_with_template(components_file_content, request,result)
-
+            try:
+                custom_eval = Custom_Eval()
+                return_value = custom_eval.custom_code_run(code, columns, file_name)
+                result = None
+                error_string = None
+                if len(return_value[1]) > 0:
+                    error_string = return_value[1]
+                else:
+                    result = return_value[0]
+            except Exception as exc2:
+                error_string = f"error:\n{exc2}\n"
+            if result is not None or error_string is None:
+                result = replace_code_with_template(components_file_content, request,result)
+            else:
+                result = error_string
     return HttpResponse(result, content_type="text/plain")
 
 

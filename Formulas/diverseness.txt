@@ -1,2 +1,2 @@
 def f():
-    return values.groupby(cols.tolist()).size()
+    return values.groupby(cols.tolist()).size()/len(values.index)
