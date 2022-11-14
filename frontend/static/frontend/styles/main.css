@@ -1,4 +1,11 @@
-.AppMainDiv{
-background-color: #fefefe;
+.AppMainDiv {
+    background-color: #fefefe;
+}
 
+.CenterAlignment {
+    display: flex;
+    justify-content: center;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: center;
 }

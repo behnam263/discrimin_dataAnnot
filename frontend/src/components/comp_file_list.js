@@ -61,7 +61,7 @@ class FileListComp extends Component {
         <div className="row d-flex justify-content-center text-center">
           <div className="col-1"></div>
           <div className="col-10">
-          <h3>File List</h3>
+          <h3>Loaded Data Files</h3>
             <div style={{ height: 400, width: "80%" }}>
               <Table striped bordered hover variant="white">
                 <thead className="BackgroundThemeColor">

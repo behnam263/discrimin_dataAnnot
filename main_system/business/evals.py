@@ -1,10 +1,8 @@
 import os.path
 import pandas as pd
-
-from .filemgm import FileMGM
-
 import matplotlib.pyplot as plt
 import base64
+from .filemgm import FileMGM
 from io import BytesIO
 
 
@@ -14,16 +12,6 @@ class Evals:
     def __init__(self):
         file_mgm = FileMGM()
         self.upload_path = file_mgm.getUploadFolder()
-
-    def baysian(request, self):
-        file_path = self.uploadpath + request
-        if os.path.exists(file_path):
-            dataset = pd.read_csv(file_path)
-            X = dataset.iloc[:, 1].values
-            Y = dataset.iloc[:, 1].values
-            return X[0:20], Y[0:20],
-        else:
-            return None
 
     def get_graph(self):
         buffer = BytesIO()
@@ -36,7 +24,7 @@ class Evals:
         buffer.close()
         return graph
 
-    def get_plot(x, y, self):
+    def get_plot(self,x, y):
         plt.switch_backend('AGG')
         plt.figure(figsize=(10, 5))
         plt.title('sale of items')
@@ -48,7 +36,12 @@ class Evals:
         graph = self.get_graph()
         return graph
 
-    def pearsonr(x, y, self):
+    def get_plot_dataframe(self, df, chart_type):
+        df.plot(kind=chart_type)  # bar can be replaced by
+        graph = self.get_graph()
+        return graph
+
+    def pearsonr(self, x, y):
         # Assume len(x) == len(y)
         n = len(x)
         sum_x = float(sum(x))

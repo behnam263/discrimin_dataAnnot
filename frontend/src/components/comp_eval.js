@@ -23,6 +23,8 @@ import ListItemText from "@mui/material/ListItemText";
 import Checkbox from "@mui/material/Checkbox";
 import Paper from "@mui/material/Paper";
 
+import Editor, { DiffEditor, useMonaco, loader } from "@monaco-editor/react";
+
 let globalHistory = null;
 class EvalComp extends Component {
   constructor(props) {
@@ -34,6 +36,7 @@ class EvalComp extends Component {
       selectedColumns: "",
       selectedFile: "",
       outputHtml: "",
+      outputChart: "",
       eval_text: "",
     };
 
@@ -54,8 +57,8 @@ class EvalComp extends Component {
     this.setState({ eval_text: event.target.value });
   };
 
-  onchangeformulatext = (event) => {
-    this.setState({ eval_text: event.target.value });
+  onchangeformulatext = (event, e) => {
+    this.setState({ eval_text: event });
   };
 
   callEvaluationServer = () => {
@@ -71,13 +74,23 @@ class EvalComp extends Component {
           this.setOutputView(val);
         }.bind(this)
       );
+      let ba2 = API.postCustomEvalChart(
+        this.state.eval_text,
+        this.props.columns.map((x) => x.value),
+        this.props.fileName
+      ).then(
+        function (val) {
+          console.log(this);
+          console.log(val);
+          this.setOutputChart(val);
+         }.bind(this)
+      );
     }
   };
 
   RunEvaluation = (event) => {
     event.preventDefault();
     let eval_value = this.state.eval_text;
-    debugger;
     if (
       eval_value == "undefined" ||
       eval_value === null ||
@@ -94,6 +107,9 @@ class EvalComp extends Component {
     this.setState({ outputHtml: value });
   };
 
+  setOutputChart = (value) => {
+    this.setState({ outputChart: value });
+  };
   render() {
     return (
       <div style={{ textAlign: "left" }}>
@@ -120,32 +136,20 @@ class EvalComp extends Component {
           </Box>
         </div>
         <div>
-          <Box
-            component="form"
-            sx={{
-              "& .MuiTextField-root": { m: 1, width: "100%" },
-            }}
-            noValidate
-            autoComplete="off"
-          >
-            <div>
-              <TextField
-                id="eval-multiline-edit-text"
-                label="Evaluation Code"
-                multiline
-                rows={4}
-                onChange={this.onchangeformulatext}
-              />
-            </div>
-          </Box>
+          <Editor
+            defaultLanguage="python"
+            defaultValue="def f():
+     return values.groupby(cols.tolist()).size()/len(values.index)"
+            onChange={this.onchangeformulatext}
+          />
         </div>
-
         <div>
           <Button variant="contained" onClick={this.RunEvaluation}>
             Run Code
           </Button>
         </div>
         <div>{parse(this.state.outputHtml)}</div>
+        <div>{parse(this.state.outputChart)}</div>
       </div>
     );
   }

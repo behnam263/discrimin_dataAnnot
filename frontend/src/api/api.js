@@ -63,6 +63,38 @@ async function postCustomEval(evalCode, columnNames, fileName) {
   });
 }
 
+async function postCustomEvalChart(evalCode, columnNames, fileName) {
+  return new Promise((resolve, reject) => {
+    let url = "/drawChart";
+    let parameters = JSON.stringify({
+      columns: columnNames,
+      evalCode: evalCode.toString(),
+      fileName: fileName.toString(),
+    });
+    fetch(baseURL + url, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: parameters,
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.text().then(function (text) {
+          resolve(text); 
+          });
+        } else {
+          console.log(text);
+          reject("FAILURE");
+        }
+      })
+      .catch((err) => {
+        reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] });
+      }); // connection errors
+  });
+}
+
 async function getEvaluationFilesList() {
   let url = "/getEvalList";
   const response = await fetch(baseURL + url);
@@ -90,5 +122,6 @@ const API = {
   getHeadDataList,
   postCustomEval,
   getEvaluationFilesList,
+  postCustomEvalChart,
 };
 export default API;

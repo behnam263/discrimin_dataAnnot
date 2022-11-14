@@ -66,18 +66,43 @@ def getDataList(request):
         return render(request, 'graph.html', {'chart': None})
 
 
-def sayhello(request):
-    evals = Evals()
-    if 'filename' in request.GET:
-        filename = request.GET['filename']
-        if filename is not None and filename != '':
-            (x, y) = evals.baysian(filename)
-            chart = evals.get_plot(x, y)
-            #   return HttpResponse('Hello world')
-            evals.baysian()
-            return render(request, 'graph.html', {'chart': chart})
-    else:
-        return render(request, 'graph.html', {'chart': None})
+@csrf_exempt
+@api_view(['POST'])
+def draw_chart(request):
+    get_data = GetData([])
+    if 'evalCode' in request.data:
+        eval_code = request.data['evalCode']
+        columns = request.data['columns']
+        file_name = request.data['fileName']
+        if eval_code is not None and eval_code != '':
+            code = ""
+            if eval_code.find("def f():") == -1:
+                (eval_file, eval_component) = get_data.get_eval_code_file(eval_code)
+                code = get_data.get_text_file(eval_file)
+                components_file_content = get_data.get_output_component_file(eval_component)
+            else:
+                (eval_file, eval_component) = get_data.get_eval_code_file("other")
+                components_file_content = get_data.get_output_component_file(eval_component)
+                code = eval_code
+
+            try:
+                custom_eval = Custom_Eval()
+                return_value = custom_eval.custom_code_run(code, columns, file_name)
+                result = None
+                error_string = None
+                if len(return_value[1]) > 0:
+                    error_string = return_value[1]
+                else:
+                    result = return_value[0]
+            except Exception as exc2:
+                error_string = f"error:\n{exc2}\n"
+            if result is not None or error_string is None:
+                evals = Evals()
+                if file_name is not None and file_name != '':
+                    chart = evals.get_plot_dataframe(result,'bar')
+                    return render(request, 'graph.html', {'chart': chart})
+            else:
+                result = error_string
 
 
 @csrf_exempt
@@ -112,13 +137,13 @@ def eval_custom_code(request):
             except Exception as exc2:
                 error_string = f"error:\n{exc2}\n"
             if result is not None or error_string is None:
-                result = replace_code_with_template(components_file_content, request,result)
+                result = replace_code_with_template(components_file_content, request, result)
             else:
                 result = error_string
     return HttpResponse(result, content_type="text/plain")
 
 
-def replace_code_with_template(template_data, request,input_data):
+def replace_code_with_template(template_data, request, input_data):
     template = ""
     try:
         d_list = json.loads(template_data)
@@ -131,7 +156,7 @@ def replace_code_with_template(template_data, request,input_data):
                 button_text = button_dictionary.get('text')
                 current_template = str(render(request, "output_controls/button.html").content)[2:-1]
                 if button_name is not None:
-                    current_template = current_template.replace("{name}", "name=\""+str(button_name)+"\"")
+                    current_template = current_template.replace("{name}", "name=\"" + str(button_name) + "\"")
                 if button_text is not None:
                     current_template = current_template.replace("{text}", str(button_text))
             if data == "table":

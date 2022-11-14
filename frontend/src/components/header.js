@@ -44,6 +44,9 @@ class NavbarHeader extends React.Component {
                     <Nav.Link as={NavLink} to="/filelist">
                       Evaluation
                     </Nav.Link>
+                    <Nav.Link as={NavLink} to="/upload">
+                      Upload Data
+                    </Nav.Link>
                   </Nav>
                   <Form
                     className="d-flex"
@@ -61,6 +64,9 @@ class NavbarHeader extends React.Component {
                 </Route>
                 <Route path="/eval">
                   <EvalComp />
+                </Route>
+                <Route path="/upload">
+                  <UploadComp />
                 </Route>
                 <Route path="/contact-us"></Route>
               </Switch>

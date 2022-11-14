@@ -63,12 +63,28 @@ class UploadComp extends Component {
 
   render() {
     return (
-      <div>
-        <h1>Upload Dataset</h1>
-        <h3>Upload your dataset here:</h3>
-        <div>
-          <input type="file" onChange={this.onFileChange} />
-          <button onClick={this.onFileUpload}>Upload</button>
+      <div className="row ms-5">
+        <div className="ms-3">
+          <h1>Upload Dataset</h1>
+        </div>
+        <div className="ms-3">
+          <h3>Upload your dataset here:</h3>
+        </div>
+        <div className="row ms-1">
+          <div className="col-sm-8">
+            <input
+              class="form-control form-control-lg"
+              id="formFileLg"
+              type="file"
+              onChange={this.onFileChange}
+            />
+          </div>
+          <button
+            className="col-sm-2 btn btn-primary"
+            onClick={this.onFileUpload}
+          >
+            Upload
+          </button>
         </div>
         {this.fileData()}
       </div>
