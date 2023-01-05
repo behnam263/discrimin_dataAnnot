@@ -95,6 +95,103 @@ async function postCustomEvalChart(evalCode, columnNames, fileName) {
   });
 }
 
+
+async function postEvaluationWithQuery(evalCode, columnNames, fileName,query) {
+  return new Promise((resolve, reject) => {
+    let url = "/resultQuery";
+    let parameters = JSON.stringify({
+      columns: columnNames,
+      evalCode: evalCode.toString(),
+      fileName: fileName.toString(),
+      query: query.toString(),
+    });
+    fetch(baseURL + url, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: parameters,
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.text().then(function (text) {
+          resolve(text); 
+          });
+        } else {
+          console.log(text);
+          reject("FAILURE");
+        }
+      })
+      .catch((err) => {
+        reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] });
+      }); // connection errors
+  });
+}
+
+async function postEvaluationChartWithQuery(evalCode, columnNames, fileName,query) {
+  return new Promise((resolve, reject) => {
+    let url = "/drawChartQuery";
+    let parameters = JSON.stringify({
+      columns: columnNames,
+      evalCode: evalCode.toString(),
+      fileName: fileName.toString(),
+      query: query.toString(),
+    });
+    fetch(baseURL + url, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: parameters,
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.text().then(function (text) {
+          resolve(text); 
+          });
+        } else {
+          console.log(text);
+          reject("FAILURE");
+        }
+      })
+      .catch((err) => {
+        reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] });
+      }); // connection errors
+  });
+}
+async function PostSelectedColumns(evalCode, columnNames, fileName) {
+  return new Promise((resolve, reject) => {
+    let url = "/columnsComponents";
+    let parameters = JSON.stringify({
+      columns: columnNames,
+      evalCode: evalCode.toString(),
+      fileName: fileName.toString(),
+    });
+    fetch(baseURL + url, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: parameters,
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.text().then(function (text) {
+          resolve(text); 
+          });
+        } else {
+          reject("FAILURE");
+        }
+      })
+      .catch((err) => {
+        reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] });
+      }); // connection errors
+  });
+}
+
 async function getEvaluationFilesList() {
   let url = "/getEvalList";
   const response = await fetch(baseURL + url);
@@ -108,20 +205,14 @@ async function getEvaluationFilesList() {
   }
 }
 
-/* function output_resolver(input_text) {
-  let input_splitted = input_text.split(";");
-  let output = [];
-  let JSONObject = JSON.parse(input_splitted[0]);
-  output.push(JSONObject);
-  output.push(input_splitted[1]);
-  return output;
-} */
-
 const API = {
   getFileList,
   getHeadDataList,
   postCustomEval,
   getEvaluationFilesList,
   postCustomEvalChart,
+  postEvaluationWithQuery,
+  postEvaluationChartWithQuery,
+  PostSelectedColumns
 };
 export default API;

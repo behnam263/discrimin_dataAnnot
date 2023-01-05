@@ -9,3 +9,7 @@
     align-items: center;
     -webkit-justify-content: center;
 }
+
+.InvisibleItem{
+display: none;
+}

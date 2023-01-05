@@ -1,29 +1,15 @@
-import axios from "axios";
+
 import React, { Component } from "react";
-import PropTypes from "prop-types";
-
 import API from "../api/api.js";
-
 import MenuType from "../api/type_menu.js";
-
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import parse from "html-react-parser";
 
-import Grid from "@mui/material/Grid";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import Checkbox from "@mui/material/Checkbox";
-import Paper from "@mui/material/Paper";
-
-import Editor, { DiffEditor, useMonaco, loader } from "@monaco-editor/react";
 
 let globalHistory = null;
 class EvalComp extends Component {
@@ -38,6 +24,8 @@ class EvalComp extends Component {
       outputHtml: "",
       outputChart: "",
       eval_text: "",
+      eval_query: "",
+      outputSelector:""
     };
 
     API.getEvaluationFilesList()
@@ -55,10 +43,6 @@ class EvalComp extends Component {
   handleComboboxChange = (event) => {
     this.setState({ evals: event.target.value });
     this.setState({ eval_text: event.target.value });
-  };
-
-  onchangeformulatext = (event, e) => {
-    this.setState({ eval_text: event });
   };
 
   callEvaluationServer = () => {
@@ -86,6 +70,30 @@ class EvalComp extends Component {
          }.bind(this)
       );
     }
+  }; 
+  callEvaluationServerWithQuery = (query) => {
+    if (this.state.evals != -1) {
+      let bar = API.postEvaluationWithQuery(
+        this.state.eval_text,
+        this.props.columns.map((x) => x.value),
+        this.props.fileName,
+        query
+      ).then(
+        function (val) {
+          this.setOutputView(val);
+        }.bind(this)
+      );
+      let ba2 = API.postEvaluationChartWithQuery(
+        this.state.eval_text,
+        this.props.columns.map((x) => x.value),
+        this.props.fileName,
+        query
+      ).then(
+        function (val) {
+          this.setOutputChart(val);
+         }.bind(this)
+      );
+    }
   };
 
   RunEvaluation = (event) => {
@@ -102,6 +110,56 @@ class EvalComp extends Component {
     } else {
       this.callEvaluationServer();
     }
+    MultiSelectCreator(1);
+  };
+
+  RunEvaluationWithQuery = (event) => {
+    if (this.state.evals != -1) {
+      let bar = API.PostSelectedColumns(
+        this.state.eval_text,
+        this.props.columns.map((x) => x.value),
+        this.props.fileName
+      ).then(
+        function (val) {
+          this.setOutputView(val);
+        }.bind(this)
+      );
+    }
+  };
+  GetColumnsAndComponents = (event) => {
+    event.preventDefault();
+    let eval_value = this.state.eval_text; 
+    if (
+      eval_value == "undefined" ||
+      eval_value === null ||
+      eval_value.trim() === ""
+    ) {
+      this.setState({ eval_text: this.state.eval }, () => {
+        if (this.state.evals != -1) {
+          let bar = API.PostSelectedColumns(
+            this.state.eval_text,
+            this.props.columns.map((x) => x.value),
+            this.props.fileName
+          ).then(
+            function (val) {
+              this.setOutputView(val);
+            }.bind(this)
+          );
+      }});
+    } else {
+
+      if (this.state.evals != -1) {
+        let bar = API.PostSelectedColumns(
+          this.state.eval_text,
+          this.props.columns.map((x) => x.value),
+          this.props.fileName
+        ).then(
+          function (val) {
+            this.setOutputView(val);
+          }.bind(this)
+        );
+    }
+  };
   };
   setOutputView = (value) => {
     this.setState({ outputHtml: value });
@@ -110,6 +168,44 @@ class EvalComp extends Component {
   setOutputChart = (value) => {
     this.setState({ outputChart: value });
   };
+
+  
+
+  MultiSelectCreator = (value) => {
+    const names = [
+      { id: "1", value: "Oliver Hansen" },
+      { id: "2", value: "Van Henry" },
+      { id: "3", value: "Van Henry" }
+    ];
+    let selectedName="";
+    for (let i=0; i<value; i++)
+    {
+      outputSelector=` 
+      <Select
+      multiple
+      native
+      value={selectedName}
+      onChange={handleChangeMultiple}
+      label="Native"
+      inputProps={{
+        id: 'select-multiple-native',
+      }}
+    >
+      {names.map((name) => (
+        <option key={name} value={name}>
+          {name}
+        </option>
+      ))}
+    </Select>`;
+    }
+
+  }
+
+  handleComboboxChange = (event) => {
+    this.setState({ evals: event.target.value });
+    this.setState({ eval_text: event.target.value });
+  };
+
   render() {
     return (
       <div style={{ textAlign: "left" }}>
@@ -136,19 +232,16 @@ class EvalComp extends Component {
           </Box>
         </div>
         <div>
-          <Editor
-            defaultLanguage="python"
-            defaultValue="def f():
-     return values.groupby(cols.tolist()).size()/len(values.index)"
-            onChange={this.onchangeformulatext}
-          />
-        </div>
-        <div>
-          <Button variant="contained" onClick={this.RunEvaluation}>
-            Run Code
+          <Button variant="contained" onClick={this.GetColumnsAndComponents}>
+            Load Selected Data
+          </Button> 
+          <Button variant="contained" data-name="RunCodeClick" className="InvisibleItem" onClick={this.RunEvaluationWithQuery}>
+            Run Code WithQuery
           </Button>
+      
         </div>
         <div>{parse(this.state.outputHtml)}</div>
+         <div>{parse(this.state.outputSelector)}</div> 
         <div>{parse(this.state.outputChart)}</div>
       </div>
     );

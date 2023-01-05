@@ -1,2 +1,11 @@
+import pandas as pd
+
 def f():
-    return values.groupby(cols.tolist()).size()/len(values.index)
+    if query!=None:
+        query_dataframe=pd.read_json(query, orient='records')
+        filtered_columns=values
+        for column in columns:
+            filtered_columns = filtered_columns[filtered_columns[str(column)].isin(query_dataframe.T[str(column)])]
+            return filtered_columns
+    else:
+        return values.groupby(columns.tolist()).size()/len(values.index)

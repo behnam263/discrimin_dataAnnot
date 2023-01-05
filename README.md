@@ -46,6 +46,21 @@ List the ready features here:
 - Select features to evaluate
 - Evaluate the result with respect to four models
 
+## Prerequisites 
+You need to install Node.js and npm befor you start.
+
+If you are using anaconda you can add modules like this:
+
+    conda config --add channels conda-forge
+
+    conda install -c anaconda django
+
+    conda install django-debug-toolbar
+
+    conda install djangorestframework
+
+other wise just install them using pip for your environment.
+
 ## Setup
 Dependencies for react is in package file so you can use 
 > npm -i
