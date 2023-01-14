@@ -24,7 +24,7 @@
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-react": "^7.16.5",
     "@babel/preset-stage-0": "^7.8.3",
-    "babel-core": "^6.26.3",
+    "babel-core": "^4.7.16",
     "babel-loader": "^8.2.3",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-polyfill": "^6.26.0",
@@ -53,7 +53,9 @@
     "react-alert-template-basic": "^1.0.0",
     "react-bootstrap": "^2.1.0",
     "react-dom": "^17.0.2",
+    "react-property": "^2.0.0",
     "react-router-dom": "^5.1.2",
-    "react-transition-group": "^2.9.0"
+    "react-transition-group": "^2.9.0",
+    "style-to-js": "^1.1.2"
   }
 }

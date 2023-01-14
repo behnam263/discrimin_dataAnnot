@@ -10,7 +10,6 @@ import Select from "@mui/material/Select";
 import Button from "@mui/material/Button";
 import parse from "html-react-parser";
 
-
 let globalHistory = null;
 class EvalComp extends Component {
   constructor(props) {
@@ -25,7 +24,8 @@ class EvalComp extends Component {
       outputChart: "",
       eval_text: "",
       eval_query: "",
-      outputSelector:""
+      outputSelector: "",
+      scriptWordLength: 8
     };
 
     API.getEvaluationFilesList()
@@ -67,10 +67,10 @@ class EvalComp extends Component {
           console.log(this);
           console.log(val);
           this.setOutputChart(val);
-         }.bind(this)
+        }.bind(this)
       );
     }
-  }; 
+  };
   callEvaluationServerWithQuery = (query) => {
     if (this.state.evals != -1) {
       let bar = API.postEvaluationWithQuery(
@@ -91,7 +91,7 @@ class EvalComp extends Component {
       ).then(
         function (val) {
           this.setOutputChart(val);
-         }.bind(this)
+        }.bind(this)
       );
     }
   };
@@ -128,7 +128,7 @@ class EvalComp extends Component {
   };
   GetColumnsAndComponents = (event) => {
     event.preventDefault();
-    let eval_value = this.state.eval_text; 
+    let eval_value = this.state.eval_text;
     if (
       eval_value == "undefined" ||
       eval_value === null ||
@@ -145,7 +145,8 @@ class EvalComp extends Component {
               this.setOutputView(val);
             }.bind(this)
           );
-      }});
+        }
+      });
     } else {
 
       if (this.state.evals != -1) {
@@ -158,10 +159,22 @@ class EvalComp extends Component {
             this.setOutputView(val);
           }.bind(this)
         );
-    }
+      }
+    };
   };
-  };
+ 
   setOutputView = (value) => {
+    debugger;
+    console.log(value);
+    let newdata = parse(value);
+   
+    console.log(newdata);
+    let scripttxt=value.substr(value.indexOf("<script>"),
+    value.indexOf("</script>")-value.indexOf("<script>")+this.state.scriptWordLength+1);
+    this.DomScriptMaker(scripttxt);
+    let buttontxt=value.substr(value.indexOf("<button"),
+    value.indexOf("</button>")-value.indexOf("<button")+this.state.scriptWordLength+1);
+    value+=this.DomButtonMaker(buttontxt);
     this.setState({ outputHtml: value });
   };
 
@@ -169,38 +182,49 @@ class EvalComp extends Component {
     this.setState({ outputChart: value });
   };
 
-  
-
-  MultiSelectCreator = (value) => {
-    const names = [
-      { id: "1", value: "Oliver Hansen" },
-      { id: "2", value: "Van Henry" },
-      { id: "3", value: "Van Henry" }
-    ];
-    let selectedName="";
-    for (let i=0; i<value; i++)
+  GeneralCaller = (args) => {
+    if(args==`"onClick":"RunCodeClick"`)
     {
-      outputSelector=` 
-      <Select
-      multiple
-      native
-      value={selectedName}
-      onChange={handleChangeMultiple}
-      label="Native"
-      inputProps={{
-        id: 'select-multiple-native',
-      }}
-    >
-      {names.map((name) => (
-        <option key={name} value={name}>
-          {name}
-        </option>
-      ))}
-    </Select>`;
+      document.querySelectorAll('[data-name="RunCodeClick"]').click()
     }
-
   }
 
+  DomScriptMaker=(inputScriptTag)=> {
+    parse(inputScriptTag, {
+      replace: (node) => {  
+        if (node.type === 'script') {
+          let externalScript = node.attribs.src ? true : false;
+          
+          const script = document.createElement('script');
+          if (externalScript) {
+            script.src = node.attribs.src;
+          } else {
+            script.innerHTML = node.children[0].data;
+          }
+          
+          document.head.append(script);
+        }
+      }
+    });
+  }
+
+  DomButtonMaker=(inputScriptTag)=> {
+    parse(inputScriptTag, {
+      replace: (node) => {  
+      debugger;
+      if(node.name==="button"){
+          const button = document.createElement('button');
+          button.onclick= window[node.attribs.onclick];
+          button.className= node.attribs.class;
+          button.name= node.attribs.name;
+          button.innerText=node.children[0].data;
+          let outputPlaceHolder=document.getElementsByName("outputControls")[0];
+          outputPlaceHolder.appendChild(button);
+      }
+      }
+    });
+  }
+ 
   handleComboboxChange = (event) => {
     this.setState({ evals: event.target.value });
     this.setState({ eval_text: event.target.value });
@@ -234,15 +258,16 @@ class EvalComp extends Component {
         <div>
           <Button variant="contained" onClick={this.GetColumnsAndComponents}>
             Load Selected Data
-          </Button> 
+          </Button>
           <Button variant="contained" data-name="RunCodeClick" className="InvisibleItem" onClick={this.RunEvaluationWithQuery}>
             Run Code WithQuery
           </Button>
-      
+
         </div>
-        <div>{parse(this.state.outputHtml)}</div>
-         <div>{parse(this.state.outputSelector)}</div> 
-        <div>{parse(this.state.outputChart)}</div>
+         <div name="outputHtml" data-name="outputHtml">{parse(this.state.outputHtml)}</div>
+         <div name="outputControls" data-name="outputControls"></div>
+        <div>{parse(this.state.outputSelector)}</div>
+        <div>{parse(this.state.outputChart)}</div> 
       </div>
     );
   }
