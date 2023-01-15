@@ -82,7 +82,7 @@ class EvalComp extends Component {
         this.state.eval_query
       ).then(
         function (val) {
-          this.setOutputView(val);
+          this.setOutputResultTable(val);
         }.bind(this)
       );
       let ba2 = API.postEvaluationChartWithQuery(
@@ -123,7 +123,7 @@ class EvalComp extends Component {
         this.props.fileName
       ).then(
         function (val) {
-          this.setOutputView(val);
+          this.setOutputResultTable(val);
         }.bind(this)
       );
     }
@@ -247,6 +247,10 @@ class EvalComp extends Component {
       numberOfParsedElements++;
     }
   };
+  setOutputResultTable = (value) => {
+    debugger;
+    this.setState({ outputHtml: value });
+  };
 
   handleComboboxChange = (event) => {
     this.setState({ evals: event.target.value });
@@ -310,8 +314,8 @@ class EvalComp extends Component {
           </Button>
 
         </div>
-        <div name="outputHtml" data-name="outputHtml">{parse(this.state.outputHtml)}</div>
         <div name="outputControls" className="row rounded Margin15Px" data-name="outputControls"></div>
+        <div name="outputHtml" data-name="outputHtml">{parse(this.state.outputHtml)}</div>
         <div>{parse(this.state.outputChart)}</div>
       </div>
     );

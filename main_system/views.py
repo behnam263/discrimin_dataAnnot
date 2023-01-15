@@ -57,6 +57,8 @@ def draw_query_chart(request):
         eval_code = request.data['evalCode']
         columns = request.data['columns']
         file_name = request.data['fileName']
+        if request.data['query'] is None:
+            return None
         query = request.data['query']
         query_dataframe = json.loads(query)
         evaluation_module = Evaluations()
@@ -162,7 +164,7 @@ def query_in_results(request):
             except Exception as exc2:
                 error_string = f"error:\n{exc2}\n"
             if result is not None or error_string is None:
-                result = controllers.replace_code_with_template(components_file_content, request, result, None)
+                result = controllers.replace_code_with_specific_template_name("table", result)
             else:
                 result = error_string
     return HttpResponse(result, content_type="text/plain")
