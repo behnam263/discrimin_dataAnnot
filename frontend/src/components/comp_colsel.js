@@ -10,6 +10,7 @@ import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 import { width } from "@mui/system";
 import EvalComp from "./comp_eval.js";
+import TableContainer from '@mui/material/TableContainer';
 
 const ColSelection = (props) => {
   let { data, fileName } = props;
@@ -66,25 +67,32 @@ const ColSelection = (props) => {
   return (
     <div>
       {console.log(data)}
-      {data &&  (
+      {data && (
         <div>
           <h3>Preview of selected file:</h3>
-          <div style={{ height: 400, width: "80%" }}>
-            <table className="table table-bordered">
-              <thead className="BackgroundThemeColor">
-                <tr>{createColumns(data)}</tr>
-              </thead>
-              <tbody>
-                {data &&
-                  data.map((r) => (
-                    <tr>
-                      {Object.values(r).map((d, i) => {
-                        return <td>{d}</td>;
-                      })}
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
+          <div className="pb-3">
+            <TableContainer
+              sx={{
+                width: "100%",
+                height: 400
+              }}
+            >
+              <table className="table table-bordered">
+                <thead className="BackgroundThemeColor">
+                  <tr>{createColumns(data)}</tr>
+                </thead>
+                <tbody>
+                  {data &&
+                    data.map((r) => (
+                      <tr>
+                        {Object.values(r).map((d, i) => {
+                          return <td>{d}</td>;
+                        })}
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </TableContainer>
           </div>
         </div>
       )}

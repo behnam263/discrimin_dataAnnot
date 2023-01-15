@@ -2,10 +2,6 @@ import pandas as pd
 
 def f():
     if query!=None:
-        query_dataframe=pd.read_json(query, orient='records')
-        filtered_columns=values
-        for column in columns:
-            filtered_columns = filtered_columns[filtered_columns[str(column)].isin(query_dataframe.T[str(column)])]
-            return filtered_columns
+        return filtered_columns.groupby(input_columns_names.tolist()).size() / len(column_values.index)
     else:
-        return values.groupby(columns.tolist()).size()/len(values.index)
+        return column_values.groupby(input_columns_names.tolist()).size()/len(column_values.index)

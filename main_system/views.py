@@ -7,6 +7,7 @@ from main_system.business.get_data import GetData
 from main_system.business.evaluations import Evaluations
 from main_system.business.controllers import Controllers
 from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 @csrf_exempt
@@ -57,6 +58,7 @@ def draw_query_chart(request):
         columns = request.data['columns']
         file_name = request.data['fileName']
         query = request.data['query']
+        query_dataframe = json.loads(query)
         evaluation_module = Evaluations()
         if eval_code is not None and eval_code != '':
             code = ""
@@ -70,7 +72,7 @@ def draw_query_chart(request):
                 code = eval_code
 
             try:
-                return_value = evaluation_module.custom_code_run(code, columns, query, file_name)
+                return_value = evaluation_module.custom_code_run(code, columns, query_dataframe, file_name)
                 result = None
                 error_string = None
                 if len(return_value[1]) > 0:
@@ -120,7 +122,7 @@ def general_evaluate(request):
             except Exception as exc2:
                 error_string = f"error:\n{exc2}\n"
             if result is not None or error_string is None:
-                result = controllers.replace_code_with_template(components_file_content, request, result)
+                result = controllers.replace_code_with_specific_template_name(components_file_content, request, result, None)
             else:
                 result = error_string
     return HttpResponse(result, content_type="text/plain")
@@ -136,7 +138,8 @@ def query_in_results(request):
         columns = request.data['columns']
         file_name = request.data['fileName']
         query = request.data['query']
-        query_dataframe = pd.read_json(query, orient='index')
+        ##query_dataframe = pd.read_json(query, orient='index')
+        query_dataframe=json.loads(query)
         if eval_code is not None and eval_code != '':
             if eval_code.find("def f():") == -1:
                 (eval_file, eval_component) = get_data.get_eval_code_file(eval_code)
@@ -159,34 +162,34 @@ def query_in_results(request):
             except Exception as exc2:
                 error_string = f"error:\n{exc2}\n"
             if result is not None or error_string is None:
-                result = controllers.replace_code_with_template(components_file_content, request, result)
+                result = controllers.replace_code_with_template(components_file_content, request, result, None)
             else:
                 result = error_string
     return HttpResponse(result, content_type="text/plain")
 
+
 @csrf_exempt
 @api_view(['POST'])
 def get_selected_columns_components(request):
-        get_data = GetData([])
-        controllers = Controllers()
-        if 'evalCode' in request.data:
-            eval_code = request.data['evalCode']
-            columns = request.data['columns']
-            file_name = request.data['fileName']
-            if eval_code is not None and eval_code != '':
-                if eval_code.find("def f():") == -1:
-                    (eval_file, eval_component) = get_data.get_eval_code_file(eval_code)
-                    code = get_data.get_text_file(eval_file)
-                    components_file_content = get_data.get_output_component_file(eval_component)
-                else:
-                    (eval_file, eval_component) = get_data.get_eval_code_file("other")
-                    components_file_content = get_data.get_output_component_file(eval_component)
-                    code = eval_code
+    get_data = GetData([])
+    controllers = Controllers()
+    if 'evalCode' in request.data:
+        eval_code = request.data['evalCode']
+        columns = request.data['columns']
+        file_name = request.data['fileName']
+        if eval_code is not None and eval_code != '':
+            if eval_code.find("def f():") == -1:
+                (eval_file, eval_component) = get_data.get_eval_code_file(eval_code)
+                code = get_data.get_text_file(eval_file)
+                components_file_content = get_data.get_output_component_file(eval_component)
+            else:
+                (eval_file, eval_component) = get_data.get_eval_code_file("other")
+                components_file_content = get_data.get_output_component_file(eval_component)
+                code = eval_code
 
-                evaluation_module = Evaluations()
-                result = evaluation_module.get_selected_columns(columns, file_name)
+            evaluation_module = Evaluations()
+            data_column_names, result = evaluation_module.get_selected_columns(columns, file_name)
 
+            result = controllers.replace_code_with_template_from_file(components_file_content, request, result, data_column_names)
 
-                result = controllers.replace_code_with_template(components_file_content, request, result,len(columns))
-
-                return HttpResponse(result, content_type="text/plain")
+            return HttpResponse(result, content_type="text/plain")

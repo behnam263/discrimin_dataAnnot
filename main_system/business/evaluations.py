@@ -23,24 +23,38 @@ class Evaluations:
         int_values = list(map(int, column_values))
         column_values = data_column.iloc[:, int_values]
 
-        input_columns = column_values.columns
+        input_columns_names = column_values.columns
 
+        ### Filter Columns By Selection
+        df_list = pd.DataFrame.empty
+        for cols_index in range(0, len(query_dataframe) - 1, 2):
+            col1 = pd.DataFrame(query_dataframe[cols_index]["value"])
+            col1 = col1.rename(columns={col1.columns[0]: input_columns_names[cols_index]})
+            col1 = col1.astype(str(column_values[input_columns_names[cols_index]].dtype))
+            col2 = pd.DataFrame(query_dataframe[cols_index + 1]["value"])
+            col2 = col2.rename(columns={col2.columns[0]: input_columns_names[cols_index + 1]})
+            col2 = col2.astype(str(column_values[input_columns_names[cols_index + 1]].dtype))
+            col3 = pd.concat([col1, col2], axis=1)
+            if df_list == pd.DataFrame.empty:
+                df_list = col3
+            else:
+                df_list = pd.concat([df_list, col3], axis=1)
+        filtered_columns = column_values
+        if query_dataframe is not None:
+            for column in column_values:
+                filtered_columns = filtered_columns[filtered_columns[str(column)].isin(df_list[str(column)])]
+        #### Filter Columns By Selection
+
+        ### Prepare Parameters for script
         global_vars = {}
         input_values = {
-            "values": column_values,
+            "column_values": column_values,
             "query": query_dataframe,
             "columns_count": len(column_values),
-            "columns": input_columns
+            "input_columns_names": input_columns_names,
+            "filtered_columns": filtered_columns
         }
-        ###test area####
-        #if query_dataframe != None:
-        if query_dataframe != None:
-            query_dataframe1 = pd.read_json(query_dataframe, orient='records')
-            filtered_columns = column_values
-            for column in column_values:
-                filtered_columns = filtered_columns[filtered_columns[str(column)].isin(query_dataframe1.T[str(column)])]
-                return filtered_columns
-        #######
+        ### Prepare Parameters for script
 
         ## start preparing function to be run
         exec(string_code, input_values, global_vars)
@@ -97,6 +111,7 @@ class Evaluations:
         return graph
 
     def get_selected_columns(self, column_values, file_name):
+        data_column_names = []
         get_data = GetData([])
         data_column = get_data.get_data_list(file_name)
         int_values = list(map(int, column_values))
@@ -104,8 +119,5 @@ class Evaluations:
         column_array = list()
         for column in data_column.columns.tolist():
             column_array.append(data_column[column].unique())
-
-        #data_column= data_column.groupby(data_column.columns.tolist())
-        return column_array
-
-
+            data_column_names.append(column)
+        return data_column_names, column_array

@@ -62,7 +62,7 @@ class FileListComp extends Component {
           <div className="col-1"></div>
           <div className="col-10">
           <h3>Loaded Data Files</h3>
-            <div style={{ height: 400, width: "80%" }}>
+            <div className="pb-3">
               <Table striped bordered hover variant="white">
                 <thead className="BackgroundThemeColor">
                   <tr>

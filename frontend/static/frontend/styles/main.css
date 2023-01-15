@@ -11,5 +11,13 @@
 }
 
 .InvisibleItem{
-display: none;
+display: none!important;
+}
+
+.Margin15Px{
+    margin: 15px!important;
+}
+
+.Margin10Px{
+    margin: 10px!important;
 }

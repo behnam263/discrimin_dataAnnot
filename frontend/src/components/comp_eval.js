@@ -24,7 +24,8 @@ class EvalComp extends Component {
       outputChart: "",
       eval_text: "",
       eval_query: "",
-      outputSelector: "",
+      outputElementString: "",
+      maximumNumberOfControls: 10000,
       scriptWordLength: 8
     };
 
@@ -71,13 +72,14 @@ class EvalComp extends Component {
       );
     }
   };
-  callEvaluationServerWithQuery = (query) => {
+  callEvaluationServerWithQuery = () => {
+    this.setState({ eval_query: this.PrepareQuery() });
     if (this.state.evals != -1) {
       let bar = API.postEvaluationWithQuery(
         this.state.eval_text,
         this.props.columns.map((x) => x.value),
         this.props.fileName,
-        query
+        this.state.eval_query
       ).then(
         function (val) {
           this.setOutputView(val);
@@ -87,7 +89,7 @@ class EvalComp extends Component {
         this.state.eval_text,
         this.props.columns.map((x) => x.value),
         this.props.fileName,
-        query
+        this.state.eval_query
       ).then(
         function (val) {
           this.setOutputChart(val);
@@ -162,77 +164,121 @@ class EvalComp extends Component {
       }
     };
   };
- 
-  setOutputView = (value) => {
-    debugger;
-    console.log(value);
-    let newdata = parse(value);
-   
-    console.log(newdata);
-    let scripttxt=value.substr(value.indexOf("<script>"),
-    value.indexOf("</script>")-value.indexOf("<script>")+this.state.scriptWordLength+1);
-    this.DomScriptMaker(scripttxt);
-    let buttontxt=value.substr(value.indexOf("<button"),
-    value.indexOf("</button>")-value.indexOf("<button")+this.state.scriptWordLength+1);
-    value+=this.DomButtonMaker(buttontxt);
-    this.setState({ outputHtml: value });
-  };
 
-  setOutputChart = (value) => {
-    this.setState({ outputChart: value });
-  };
+  getElementSubstring = (elementName) => {
+    let output = "";
+    let tagStart = this.state.outputElementString.indexOf("<" + elementName);
+    let tagEnd = this.state.outputElementString.indexOf("</" + elementName + ">");
+    if (tagStart == -1 || tagEnd == -1) return null;
+    output = this.state.outputElementString.substr(tagStart, tagEnd - tagStart + this.state.scriptWordLength + 1);
 
-  GeneralCaller = (args) => {
-    if(args==`"onClick":"RunCodeClick"`)
-    {
-      document.querySelectorAll('[data-name="RunCodeClick"]').click()
-    }
+    let newText = this.state.outputElementString.slice(0, tagStart) +
+      this.state.outputElementString.slice(tagEnd + this.state.scriptWordLength + 1);
+
+    this.setState({ outputElementString: newText });
+    return output;
   }
 
-  DomScriptMaker=(inputScriptTag)=> {
+  DomElementMaker = (inputScriptTag) => {
+    if (inputScriptTag == null || inputScriptTag == undefined || inputScriptTag == "")
+      return null;
     parse(inputScriptTag, {
-      replace: (node) => {  
+      replace: (node) => {
         if (node.type === 'script') {
           let externalScript = node.attribs.src ? true : false;
-          
           const script = document.createElement('script');
           if (externalScript) {
             script.src = node.attribs.src;
           } else {
             script.innerHTML = node.children[0].data;
           }
-          
           document.head.append(script);
+        }
+        else if (node.name === 'select') {
+          let selectList = document.createElement("select");
+          for (let i = 1; i < node.children.length; i++) {
+            if (node.children[i].type == "tag") {
+              let option = document.createElement("option");
+              option.value = node.children[i].children[0].data;
+              option.text = option.value;
+              selectList.appendChild(option);
+            }
+          }
+          selectList.setAttribute('data-id', node.attribs['data-column']);
+          selectList.setAttribute('multiple', '');
+          selectList.setAttribute('class', 'form-select col-sm Margin10Px');
+          let outputPlaceHolder = document.getElementsByName("outputControls")[0];
+          outputPlaceHolder.appendChild(selectList);
+        }
+        else if (node.name === "button") {
+          const button = document.createElement('button');
+          button.onclick = window[node.attribs.onclick];
+          button.name = node.attribs.name;
+          button.innerText = node.children[0].data;
+          button.setAttribute('class', node.attribs.class + ' col-sm' + ' Margin10Px');
+          let outputPlaceHolder = document.getElementsByName("outputControls")[0];
+          outputPlaceHolder.appendChild(button);
+        }
+        else {
+          // to do implement general parser
         }
       }
     });
   }
 
-  DomButtonMaker=(inputScriptTag)=> {
-    parse(inputScriptTag, {
-      replace: (node) => {  
-      debugger;
-      if(node.name==="button"){
-          const button = document.createElement('button');
-          button.onclick= window[node.attribs.onclick];
-          button.className= node.attribs.class;
-          button.name= node.attribs.name;
-          button.innerText=node.children[0].data;
-          let outputPlaceHolder=document.getElementsByName("outputControls")[0];
-          outputPlaceHolder.appendChild(button);
-      }
-      }
-    });
+  clearOuptutControlPlaceHolder = () => {
+    document.getElementsByName("outputControls")[0].innerHTML = '';
   }
- 
+
+  setOutputChart = (value) => {
+    this.setState({ outputChart: value });
+  };
+
+  setOutputView = (value) => {
+    this.setState({ outputElementString: value });
+    this.clearOuptutControlPlaceHolder();
+    let numberOfParsedElements = 0;
+    while (numberOfParsedElements < this.state.maximumNumberOfControls &&
+      this.state.outputElementString != "" && this.state.outputElementString != null &&
+      parse(this.state.outputElementString) != undefined) {
+      this.DomElementMaker(this.getElementSubstring("script"));
+      this.DomElementMaker(this.getElementSubstring("button"));
+      this.DomElementMaker(this.getElementSubstring("select"));
+      numberOfParsedElements++;
+    }
+  };
+
   handleComboboxChange = (event) => {
     this.setState({ evals: event.target.value });
     this.setState({ eval_text: event.target.value });
   };
 
+  uuidv4 = () => {
+    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+  }
+  PrepareQuery = () => {
+    let query = [];
+    let nodesWithData = document.querySelectorAll('[data-id]');
+    for (const node of nodesWithData) {
+      let selected = [];
+      for (let option of node.options) {
+        if (option.selected) {
+          selected.push(option.value);
+        }
+      }
+      query.push({
+        id: node.attributes["data-id"].value,
+        value: selected
+      });
+    }
+    return JSON.stringify(query, null, 2);
+  }
+
   render() {
     return (
-      <div style={{ textAlign: "left" }}>
+      <div style={{ textAlign: "left",margin:"" }}>
         <div>
           <Box sx={{ minWidth: 120 }}>
             <FormControl fullWidth>
@@ -256,18 +302,17 @@ class EvalComp extends Component {
           </Box>
         </div>
         <div>
-          <Button variant="contained" onClick={this.GetColumnsAndComponents}>
+          <Button variant="contained" className="Margin15Px" onClick={this.GetColumnsAndComponents}>
             Load Selected Data
           </Button>
-          <Button variant="contained" data-name="RunCodeClick" className="InvisibleItem" onClick={this.RunEvaluationWithQuery}>
+          <Button variant="contained" className="InvisibleItem Margin15Px" data-name="RunCodeClick" onClick={this.callEvaluationServerWithQuery}>
             Run Code WithQuery
           </Button>
 
         </div>
-         <div name="outputHtml" data-name="outputHtml">{parse(this.state.outputHtml)}</div>
-         <div name="outputControls" data-name="outputControls"></div>
-        <div>{parse(this.state.outputSelector)}</div>
-        <div>{parse(this.state.outputChart)}</div> 
+        <div name="outputHtml" data-name="outputHtml">{parse(this.state.outputHtml)}</div>
+        <div name="outputControls" className="row rounded Margin15Px" data-name="outputControls"></div>
+        <div>{parse(this.state.outputChart)}</div>
       </div>
     );
   }
