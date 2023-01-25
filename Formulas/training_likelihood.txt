@@ -1,5 +1,18 @@
-def f(x):
-   x = x + 1
-   return x
+import pandas as pd
 
-print ('This is my output.')
+def f():
+    if query!=None:
+        filtered_checked_columns = column_values[checked_column_names]
+        filtered_unchecked_columns = column_values[unchecked_column_names]
+        for column in filtered_checked_columns:
+            filtered_checked_columns = filtered_checked_columns[
+                filtered_checked_columns[str(column)].isin(query_table[str(column)])]
+        for column in filtered_unchecked_columns:
+            filtered_unchecked_columns = filtered_unchecked_columns[
+                filtered_unchecked_columns[str(column)].isin(query_table[str(column)])]
+        pb = len(filtered_checked_columns) / len(column_values)
+        pa = len(filtered_unchecked_columns) / len(column_values)
+        p_b_given_by_a = (filtered_columns.groupby(input_columns_names.tolist()).size() / len(column_values.index))
+        return (pa * p_b_given_by_a)/pb
+    else:
+        return column_values.groupby(input_columns_names.tolist()).size()/len(column_values.index)

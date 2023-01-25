@@ -36,7 +36,11 @@ class Controllers:
             column_count = len(columns)
         template = ""
         search_name = "{name}"
+        search_text = "{text}"
+        search_value = "{value}"
         search_name_value = "name=\""
+        search_text_value = "text=\""
+        search_value_value = "value=\""
         try:
             d_list = json.loads(template_data)
             for d in d_list:
@@ -102,6 +106,67 @@ class Controllers:
                                     dropdown_items += "<option>" + str(input_data[i][j]) + "</option>"
                                 select_template = select_template.replace("<option/>", dropdown_items, 1)
                                 current_template += select_template
+                if data == "checkbox":
+                    dropdown_dictionary = d.get('checkbox')
+                    checkbox_name = dropdown_dictionary.get('name')
+                    checkbox_text = dropdown_dictionary.get('text')
+                    checkbox_value = dropdown_dictionary.get('value')
+                    count = dropdown_dictionary.get('count')
+
+                    checkbox_template = ""
+                    if count == "columns_count":
+                        for i in range(0, column_count):
+                            checkbox_template = str(render(request, "output_controls/checkbox.html").content)[2:-1]
+                            if checkbox_name is not None:
+                                if checkbox_text == "columns_name":
+                                    checkbox_template = checkbox_template.replace(search_name, columns[i])
+                                else:
+                                    checkbox_template = checkbox_template.replace(search_name, str(checkbox_name)
+                                                                                  + str(i))
+                            if checkbox_text is not None:
+                                if checkbox_text == "columns_name":
+                                    checkbox_template = checkbox_template.replace(search_text, columns[i])
+                                else:
+                                    checkbox_template = checkbox_template.replace(search_text, str(checkbox_text)
+                                                                                  + str(i))
+                            if checkbox_value is not None:
+                                if checkbox_text == "columns_name":
+                                    checkbox_template = checkbox_template.replace(search_value, columns[i])
+                                else:
+                                    checkbox_template = checkbox_template.replace(search_value, str(checkbox_value)
+                                                                                  + str(i))
+                            checkbox_template = checkbox_template[
+                                                  :html_tag_start_length-2] + " data-column=\"" + columns[
+                                                      i] + " " + " index, " + str(i) + "\" " + checkbox_template[
+                                                                                               html_tag_start_length-2:]
+
+                            current_template += checkbox_template
+                    else:
+                        for i in range(0, int(count)):
+                            checkbox_template = str(render(request, "output_controls/dropdown.html").content)[2:-1]
+                            if checkbox_name is not None:
+                                if checkbox_text == "columns_name":
+                                    checkbox_template = checkbox_template.replace(search_name, columns[i])
+                                else:
+                                    checkbox_template = checkbox_template.replace(search_name, str(checkbox_name)
+                                                                                  + str(i))
+                            if checkbox_text is not None:
+                                if checkbox_text == "columns_name":
+                                    checkbox_template = checkbox_template.replace(search_text, columns[i])
+                                else:
+                                    checkbox_template = checkbox_template.replace(search_text, str(checkbox_text)
+                                                                                  + str(i))
+                            if checkbox_value is not None:
+                                if checkbox_text == "columns_name":
+                                    checkbox_template = checkbox_template.replace(search_value, columns[i])
+                                else:
+                                    checkbox_template = checkbox_template.replace(search_value, str(checkbox_value)
+                                                                                  + str(i))
+                            checkbox_template = checkbox_template[
+                                                  :html_tag_start_length-2] + " data-column=\"" + columns[
+                                                      i] + " " + " index, " + str(i) + "\" " + checkbox_template[
+                                                                                               html_tag_start_length-2:]
+                            current_template += checkbox_template
                 if data == "script":
                     dropdown_dictionary = d.get('script')
                     script_content = dropdown_dictionary.get('text')

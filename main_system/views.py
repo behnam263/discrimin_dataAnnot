@@ -63,14 +63,10 @@ def draw_query_chart(request):
         query_dataframe = json.loads(query)
         evaluation_module = Evaluations()
         if eval_code is not None and eval_code != '':
-            code = ""
             if eval_code.find("def f():") == -1:
                 (eval_file, eval_component) = get_data.get_eval_code_file(eval_code)
                 code = get_data.get_text_file(eval_file)
-                components_file_content = get_data.get_output_component_file(eval_component)
             else:
-                (eval_file, eval_component) = get_data.get_eval_code_file("other")
-                components_file_content = get_data.get_output_component_file(eval_component)
                 code = eval_code
 
             try:
@@ -124,7 +120,8 @@ def general_evaluate(request):
             except Exception as exc2:
                 error_string = f"error:\n{exc2}\n"
             if result is not None or error_string is None:
-                result = controllers.replace_code_with_specific_template_name(components_file_content, request, result, None)
+                result = controllers.replace_code_with_specific_template_name(components_file_content, request, result,
+                                                                              None)
             else:
                 result = error_string
     return HttpResponse(result, content_type="text/plain")
@@ -140,18 +137,13 @@ def query_in_results(request):
         columns = request.data['columns']
         file_name = request.data['fileName']
         query = request.data['query']
-        ##query_dataframe = pd.read_json(query, orient='index')
-        query_dataframe=json.loads(query)
+        query_dataframe = json.loads(query)
         if eval_code is not None and eval_code != '':
             if eval_code.find("def f():") == -1:
                 (eval_file, eval_component) = get_data.get_eval_code_file(eval_code)
                 code = get_data.get_text_file(eval_file)
-                components_file_content = get_data.get_output_component_file(eval_component)
             else:
-                (eval_file, eval_component) = get_data.get_eval_code_file("other")
-                components_file_content = get_data.get_output_component_file(eval_component)
                 code = eval_code
-
             try:
                 evaluation_module = Evaluations()
                 return_value = evaluation_module.custom_code_run(code, columns, query_dataframe, file_name)
@@ -182,16 +174,12 @@ def get_selected_columns_components(request):
         if eval_code is not None and eval_code != '':
             if eval_code.find("def f():") == -1:
                 (eval_file, eval_component) = get_data.get_eval_code_file(eval_code)
-                code = get_data.get_text_file(eval_file)
                 components_file_content = get_data.get_output_component_file(eval_component)
             else:
                 (eval_file, eval_component) = get_data.get_eval_code_file("other")
                 components_file_content = get_data.get_output_component_file(eval_component)
-                code = eval_code
-
             evaluation_module = Evaluations()
             data_column_names, result = evaluation_module.get_selected_columns(columns, file_name)
-
-            result = controllers.replace_code_with_template_from_file(components_file_content, request, result, data_column_names)
-
+            result = controllers.replace_code_with_template_from_file(components_file_content, request, result,
+                                                                      data_column_names)
             return HttpResponse(result, content_type="text/plain")

@@ -26,23 +26,39 @@ class Evaluations:
         input_columns_names = column_values.columns
 
         ### Filter Columns By Selection
-        df_list = pd.DataFrame.empty
-        for cols_index in range(0, len(query_dataframe) - 1, 2):
-            col1 = pd.DataFrame(query_dataframe[cols_index]["value"])
-            col1 = col1.rename(columns={col1.columns[0]: input_columns_names[cols_index]})
-            col1 = col1.astype(str(column_values[input_columns_names[cols_index]].dtype))
-            col2 = pd.DataFrame(query_dataframe[cols_index + 1]["value"])
-            col2 = col2.rename(columns={col2.columns[0]: input_columns_names[cols_index + 1]})
-            col2 = col2.astype(str(column_values[input_columns_names[cols_index + 1]].dtype))
-            col3 = pd.concat([col1, col2], axis=1)
-            if df_list == pd.DataFrame.empty:
-                df_list = col3
-            else:
-                df_list = pd.concat([df_list, col3], axis=1)
-        filtered_columns = column_values
-        if query_dataframe is not None:
-            for column in column_values:
-                filtered_columns = filtered_columns[filtered_columns[str(column)].isin(df_list[str(column)])]
+        query_columns = [x for x in query_dataframe if x["tag"] == "SELECT"]
+        checked_column_names = [x["id"].split(' index, ')[0].strip() for x in query_dataframe if
+                                x["tag"] == "INPUT" and x["type"] == "checkbox" and x["value"] == True]
+        unchecked_column_names = [x["id"].split(' index, ')[0].strip() for x in query_dataframe if
+                                  x["tag"] == "INPUT" and x["type"] == "checkbox" and x["value"] == False]
+        if int_values.__len__() > 1:
+            df_list = pd.DataFrame.empty
+            for cols_index in range(0, len(query_columns) - 1, 2):
+                col1 = pd.DataFrame(query_columns[cols_index]["value"])
+                col1 = col1.rename(columns={col1.columns[0]: input_columns_names[cols_index]})
+                col1 = col1.astype(str(column_values[input_columns_names[cols_index]].dtype))
+                col2 = pd.DataFrame(query_columns[cols_index + 1]["value"])
+                col2 = col2.rename(columns={col2.columns[0]: input_columns_names[cols_index + 1]})
+                col2 = col2.astype(str(column_values[input_columns_names[cols_index + 1]].dtype))
+                col3 = pd.concat([col1, col2], axis=1)
+                if df_list == pd.DataFrame.empty:
+                    df_list = col3
+                else:
+                    df_list = pd.concat([df_list, col3], axis=1)
+            if (len(query_columns) % 2 > 0):
+                col1 = pd.DataFrame(query_columns[len(query_columns) - 1]["value"])
+                col1 = col1.rename(columns={col1.columns[0]: input_columns_names[len(query_columns) - 1]})
+                col1 = col1.astype(str(column_values[input_columns_names[len(query_columns) - 1]].dtype))
+                df_list = pd.concat([df_list, col1], axis=1)
+            filtered_columns = column_values
+            if query_dataframe is not None:
+                for column in column_values:
+                    filtered_columns = filtered_columns[filtered_columns[str(column)].isin(df_list[str(column)])]
+        else:
+            col = pd.DataFrame(query_dataframe[0]["value"])
+            col = col.rename(columns={col.columns[0]: input_columns_names[0]})
+            col = col.astype(str(column_values[input_columns_names[0]].dtype))
+            filtered_columns = column_values[column_values[input_columns_names[0]].isin(col[input_columns_names[0]])]
         #### Filter Columns By Selection
 
         ### Prepare Parameters for script
@@ -52,9 +68,16 @@ class Evaluations:
             "query": query_dataframe,
             "columns_count": len(column_values),
             "input_columns_names": input_columns_names,
-            "filtered_columns": filtered_columns
+            "filtered_columns": filtered_columns,
+            "checked_column_names": checked_column_names,
+            "unchecked_column_names": unchecked_column_names,
+            "query_table": df_list
         }
         ### Prepare Parameters for script
+
+        ### test area for new codes
+
+        ### test area for new codes
 
         ## start preparing function to be run
         exec(string_code, input_values, global_vars)
@@ -68,7 +91,7 @@ class Evaluations:
         return_workaround = []
         return_function = ""
         try:
-            exec('a=f()', global_vars, local_vars)
+            exec('results=f()', global_vars, local_vars)
             if len(local_vars) > 0:
                 return_function = pd.concat(local_vars, axis=1)
 
@@ -84,29 +107,18 @@ class Evaluations:
 
     def get_graph(self):
         buffer = BytesIO()
+        plt.tight_layout()
         plt.savefig(buffer, format='png')
         buffer.seek(0)
         image_png = buffer.getvalue()
-        # print(image_png)
         graph = base64.b64encode(image_png)
         graph = graph.decode('utf_8')
         buffer.close()
         return graph
 
-    def get_plot(self, x, y):
-        plt.switch_backend('AGG')
-        plt.figure(figsize=(10, 5))
-        plt.title('sale of items')
-        plt.plot(x, y)
-        plt.xticks(rotation=45)
-        plt.xlabel('item')
-        plt.ylabel('price')
-        plt.tight_layout()
-        graph = self.get_graph()
-        return graph
-
     def get_plot_dataframe(self, df, chart_type):
-        df.plot(kind=chart_type)  # bar can be replaced by
+        df.plot(kind=chart_type)
+        # bar can be replaced by
         graph = self.get_graph()
         return graph
 

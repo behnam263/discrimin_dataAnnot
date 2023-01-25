@@ -1,8 +1,1 @@
-'{"button":{
-"name":"btn1",
-"text":"txt1"
-},
-    "table":{
-  "name":"tb1",
-  "data":"Output"
-  }}'
+[{"button": {"count":"1","name": "querySend", "text":"Get Results", "onClick":"GetResults" }}, {"dropdown": {"count":"columns_count","name": "drop", "data": "Output"}}, {"checkbox": {"count":"columns_count","name": "checkbox", "value": "columns_name", "text": "columns_name"}} , {"table": {"count":"1","name": "tb1", "data": "Output"}} , {"script": {"count":"1","text":"function GetResults() {document.querySelectorAll('[data-name=\"RunCodeClick\"]')[0].click();}" }}]
