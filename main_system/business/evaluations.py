@@ -5,11 +5,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
-import numpy as np
 
 
 class Evaluations:
-    def custom_code_run(self, code, column_values, query_dataframe, file_name):
+    def custom_code_run(self, code, column_values, query_dataframe, file_name, result_title):
         get_data = GetData([])
         # create file-like string to capture output
         code_out = StringIO()
@@ -25,14 +24,14 @@ class Evaluations:
 
         input_columns_names = column_values.columns
 
-        ### Filter Columns By Selection
+        # Filter Columns By Selection
         query_columns = [x for x in query_dataframe if x["tag"] == "SELECT"]
         checked_column_names = [x["id"].split(' index, ')[0].strip() for x in query_dataframe if
                                 x["tag"] == "INPUT" and x["type"] == "checkbox" and x["value"] == True]
         unchecked_column_names = [x["id"].split(' index, ')[0].strip() for x in query_dataframe if
                                   x["tag"] == "INPUT" and x["type"] == "checkbox" and x["value"] == False]
         if int_values.__len__() > 1:
-            df_list = pd.DataFrame.empty
+            query_table = pd.DataFrame.empty
             for cols_index in range(0, len(query_columns) - 1, 2):
                 col1 = pd.DataFrame(query_columns[cols_index]["value"])
                 col1 = col1.rename(columns={col1.columns[0]: input_columns_names[cols_index]})
@@ -41,27 +40,27 @@ class Evaluations:
                 col2 = col2.rename(columns={col2.columns[0]: input_columns_names[cols_index + 1]})
                 col2 = col2.astype(str(column_values[input_columns_names[cols_index + 1]].dtype))
                 col3 = pd.concat([col1, col2], axis=1)
-                if df_list == pd.DataFrame.empty:
-                    df_list = col3
+                if query_table == pd.DataFrame.empty:
+                    query_table = col3
                 else:
-                    df_list = pd.concat([df_list, col3], axis=1)
-            if (len(query_columns) % 2 > 0):
+                    query_table = pd.concat([query_table, col3], axis=1)
+            if len(query_columns) % 2 > 0:
                 col1 = pd.DataFrame(query_columns[len(query_columns) - 1]["value"])
                 col1 = col1.rename(columns={col1.columns[0]: input_columns_names[len(query_columns) - 1]})
                 col1 = col1.astype(str(column_values[input_columns_names[len(query_columns) - 1]].dtype))
-                df_list = pd.concat([df_list, col1], axis=1)
+                query_table = pd.concat([query_table, col1], axis=1)
             filtered_columns = column_values
             if query_dataframe is not None:
                 for column in column_values:
-                    filtered_columns = filtered_columns[filtered_columns[str(column)].isin(df_list[str(column)])]
+                    filtered_columns = filtered_columns[filtered_columns[str(column)].isin(query_table[str(column)])]
         else:
             col = pd.DataFrame(query_dataframe[0]["value"])
             col = col.rename(columns={col.columns[0]: input_columns_names[0]})
             col = col.astype(str(column_values[input_columns_names[0]].dtype))
             filtered_columns = column_values[column_values[input_columns_names[0]].isin(col[input_columns_names[0]])]
-        #### Filter Columns By Selection
+        # Filter Columns By Selection
 
-        ### Prepare Parameters for script
+        # Prepare Parameters for script
         global_vars = {}
         input_values = {
             "column_values": column_values,
@@ -71,27 +70,28 @@ class Evaluations:
             "filtered_columns": filtered_columns,
             "checked_column_names": checked_column_names,
             "unchecked_column_names": unchecked_column_names,
-            "query_table": df_list
+            "query_table": query_table,
+            "pd": pd
         }
-        ### Prepare Parameters for script
+        # Prepare Parameters for script
 
-        ### test area for new codes
+        # test area for new codes
 
-        ### test area for new codes
+        # test area for new codes
 
-        ## start preparing function to be run
+        # start preparing function to be run
         exec(string_code, input_values, global_vars)
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__
-        ## end preparing function to be run
+        # end preparing function to be run
 
-        ## start to run function to be run
+        # start to run function to be run
         output_error = ""
         local_vars = {}
         return_workaround = []
         return_function = ""
         try:
-            exec('results=f()', global_vars, local_vars)
+            exec(result_title + '=f()', global_vars, local_vars)
             if len(local_vars) > 0:
                 return_function = pd.concat(local_vars, axis=1)
 
@@ -99,7 +99,7 @@ class Evaluations:
             output_error = f"error:\n{exc}\n"
         code_out.close()
         code_err.close()
-        ## end running function to be run
+        # end running function to be run
 
         return_workaround.append(return_function)
         return_workaround.append(output_error)

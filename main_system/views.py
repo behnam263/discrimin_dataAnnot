@@ -31,7 +31,7 @@ def draw_chart(request):
 
             try:
                 evaluation_module = Evaluations()
-                return_value = evaluation_module.custom_code_run(code, columns, None, file_name)
+                return_value = evaluation_module.custom_code_run(code, columns, None, file_name,eval_code)
                 result = None
                 error_string = None
                 if len(return_value[1]) > 0:
@@ -70,7 +70,7 @@ def draw_query_chart(request):
                 code = eval_code
 
             try:
-                return_value = evaluation_module.custom_code_run(code, columns, query_dataframe, file_name)
+                return_value = evaluation_module.custom_code_run(code, columns, query_dataframe, file_name,eval_code)
                 result = None
                 error_string = None
                 if len(return_value[1]) > 0:
@@ -110,7 +110,7 @@ def general_evaluate(request):
 
             try:
                 evaluation_module = Evaluations()
-                return_value = evaluation_module.custom_code_run(code, columns, None, file_name)
+                return_value = evaluation_module.custom_code_run(code, columns, None, file_name,eval_code)
                 result = None
                 error_string = None
                 if len(return_value[1]) > 0:
@@ -146,7 +146,7 @@ def query_in_results(request):
                 code = eval_code
             try:
                 evaluation_module = Evaluations()
-                return_value = evaluation_module.custom_code_run(code, columns, query_dataframe, file_name)
+                return_value = evaluation_module.custom_code_run(code, columns, query_dataframe, file_name,eval_code)
                 result = None
                 error_string = None
                 if len(return_value[1]) > 0:

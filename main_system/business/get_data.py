@@ -34,7 +34,7 @@ class GetData:
 
     def get_eval_entity(self, eval_name):
         eval_list = self.get_eval_list()
-        for i in range(1, eval_list[1].count()):
+        for i in range(0, eval_list[1].count()):
             if eval_list[1][i] == eval_name:
                 return eval_list.iloc[i]
         return None
