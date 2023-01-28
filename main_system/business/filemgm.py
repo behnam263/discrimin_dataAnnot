@@ -1,26 +1,45 @@
 import os
 import pandas as pd
-
+import platform
 
 class FileMGM:
     def __init__(self):
         pass
 
     def getUploadFolder(self):
-        return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '\\uploads\\'
+        match platform.system():
+            case "Linux":
+                return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '/uploads/'
+            case "Windows":
+                return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '\\uploads\\'
+            case _:
+                return "Something's wrong with OS name"
+        return
 
     def getFormulaFolder(self):
-        return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '\\Formulas\\'
+        match platform.system():
+            case "Linux":
+                return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '/Formulas/'
+            case "Windows":
+                return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '\\Formulas\\'
+            case _:
+                return "Something's wrong with OS name"
 
     def get_output_component_folder(self):
-        return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '\\Formulas\\Components\\'
+        match platform.system():
+            case "Linux":
+                return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '/Formulas/Components/'
+            case "Windows":
+                return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '\\Formulas\\Components\\'
+            case _:
+                return "Something's wrong with OS name"
 
     def getFormulaFileAddress(self):
         return self.getFormulaFolder() + 'fileList.csv'
 
     def getListOfUpload(self):
         # uploadPath=self.getUploadFolder()
-        files = os.listdir('./uploads')
+        files = os.listdir(self.getUploadFolder())
         return files
 
     def getdataFrameofFile(self, path, separator, with_header):
