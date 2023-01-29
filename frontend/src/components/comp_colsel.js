@@ -1,14 +1,5 @@
-import axios from "axios";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import API from "../api/api.js";
-import ColumnType from "../api/type_column.js";
-import ListGroup from "react-bootstrap/ListGroup";
-import { DataGrid } from "@mui/x-data-grid";
-import { createTheme } from "@mui/material/styles";
-import Checkbox from "@mui/material/Checkbox";
-import Button from "@mui/material/Button";
-import { width } from "@mui/system";
 import EvalComp from "./comp_eval.js";
 import TableContainer from '@mui/material/TableContainer';
 

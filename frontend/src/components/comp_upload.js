@@ -1,11 +1,12 @@
 import axios from "axios";
 import React, { Component } from "react";
-import API from "../api/api.js";
 
 class UploadComp extends Component {
   state = {
     // Initially, no file is selected
     selectedFile: null,
+    uploadResult: "",
+    resultColor: "black"
   };
 
   // On file select (from the pop up)
@@ -15,7 +16,7 @@ class UploadComp extends Component {
   };
 
   // On file upload (click the upload button)
-  onFileUpload = () => {
+  onFileUpload = async () => {
     // Create an object of formData
     const formData = new FormData();
 
@@ -25,17 +26,15 @@ class UploadComp extends Component {
       this.state.selectedFile,
       this.state.selectedFile.name
     );
-
-    // Details of the uploaded file
-    console.log(this.state.selectedFile);
-
-    // Request made to the backend api
-    // Send formData object
-    console.log(this.state.selectedFile.name);
-    axios.put(
+    const res = await axios.put(
       "/main_system/upload/" + this.state.selectedFile.name,
       this.state.selectedFile
     );
+    this.setState({ uploadResult: res.data }); 
+    if(res.data.includes("Fail"))
+      this.setState({ resultColor: "red" });
+    else
+      this.setState({ resultColor: "green" });
   };
 
   // File content to be displayed after
@@ -73,7 +72,7 @@ class UploadComp extends Component {
         <div className="row ms-1">
           <div className="col-sm-8">
             <input
-              class="form-control form-control-lg"
+              className="form-control form-control-lg"
               id="formFileLg"
               type="file"
               onChange={this.onFileChange}
@@ -87,6 +86,9 @@ class UploadComp extends Component {
           </button>
         </div>
         {this.fileData()}
+        <div style={{color: this.state.resultColor}}>
+          {this.state.uploadResult}
+        </div>
       </div>
     );
   }

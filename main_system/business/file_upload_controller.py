@@ -10,10 +10,12 @@ class FileUploadView(APIView):
     parser_classes = [FileUploadParser]
 
     def put(self, request, filename, format=None):
-        filemanagement = FileMGM()
-        file_obj = request.data['file']
-        media_root = filemanagement.getUploadFolder()
-        fs = FileSystemStorage(location=media_root)
-        fs.save(filename, file_obj)
-        print(filename)
-        return Response(status=204)
+        try:
+            file_management = FileMGM()
+            file_obj = request.data['file']
+            media_root = file_management.getUploadFolder()
+            fs = FileSystemStorage(location=media_root)
+            fs.save(filename, file_obj)
+            return Response("File uploaded correctly", status=200)
+        except Exception as exc:
+            return Response("Upload failed:" + exc, status=500)

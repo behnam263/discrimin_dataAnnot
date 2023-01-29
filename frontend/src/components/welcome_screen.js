@@ -16,12 +16,6 @@ class WelcomeScreen extends Component {
            risk through data annotation based on Bayesian inferences
           </p>
           <hr className="my-4" />
-          <p>
-     
-          </p>
-          <a className="btn btn-primary btn-lg" href="#" role="button">
-            Learn more
-          </a>
         </div>
       </div>
     );

@@ -1,5 +1,7 @@
 import json
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
 from main_system.business.get_data import GetData
 from django.http import HttpResponse
 
@@ -11,6 +13,17 @@ class Controllers:
         get_data.get_file_list()
         datajson = get_data.to_json()
         return HttpResponse(datajson, content_type="application/json")
+
+    @csrf_exempt
+    @api_view(['DELETE'])
+    def delete_file(request):
+        body = str(request.stream.body)
+        body = body[2:len(body) - 1]
+        json_body = json.loads(body)
+        file_name = json_body['filename']
+        get_data = GetData([])
+        get_data.delete_a_file(file_name)
+        return HttpResponse("success", content_type="application/json")
 
     def get_eval_list(self):
         get_data = GetData([])
@@ -39,8 +52,6 @@ class Controllers:
         search_text = "{text}"
         search_value = "{value}"
         search_name_value = "name=\""
-        search_text_value = "text=\""
-        search_value_value = "value=\""
         try:
             d_list = json.loads(template_data)
             for d in d_list:
@@ -136,9 +147,9 @@ class Controllers:
                                     checkbox_template = checkbox_template.replace(search_value, str(checkbox_value)
                                                                                   + str(i))
                             checkbox_template = checkbox_template[
-                                                  :html_tag_start_length-2] + " data-column=\"" + columns[
-                                                      i] + " " + " index, " + str(i) + "\" " + checkbox_template[
-                                                                                               html_tag_start_length-2:]
+                                                :html_tag_start_length - 2] + " data-column=\"" + columns[
+                                                    i] + " " + " index, " + str(i) + "\" " + checkbox_template[
+                                                                                             html_tag_start_length - 2:]
 
                             current_template += checkbox_template
                     else:
@@ -163,9 +174,9 @@ class Controllers:
                                     checkbox_template = checkbox_template.replace(search_value, str(checkbox_value)
                                                                                   + str(i))
                             checkbox_template = checkbox_template[
-                                                  :html_tag_start_length-2] + " data-column=\"" + columns[
-                                                      i] + " " + " index, " + str(i) + "\" " + checkbox_template[
-                                                                                               html_tag_start_length-2:]
+                                                :html_tag_start_length - 2] + " data-column=\"" + columns[
+                                                    i] + " " + " index, " + str(i) + "\" " + checkbox_template[
+                                                                                             html_tag_start_length - 2:]
                             current_template += checkbox_template
                 if data == "script":
                     dropdown_dictionary = d.get('script')

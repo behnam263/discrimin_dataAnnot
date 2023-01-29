@@ -16,10 +16,8 @@ class EvalComp extends Component {
     super(props);
     this.state = {
       evals: -1,
-      codevalue: "",
       listOfMenuItems: [],
       selectedColumns: "",
-      selectedFile: "",
       outputHtml: "",
       outputChart: "",
       eval_text: "",
@@ -46,89 +44,33 @@ class EvalComp extends Component {
     this.setState({ eval_text: event.target.value });
   };
 
-  callEvaluationServer = () => {
-    if (this.state.evals != -1) {
-      let bar = API.postCustomEval(
-        this.state.eval_text,
-        this.props.columns.map((x) => x.value),
-        this.props.fileName
-      ).then(
-        function (val) {
-          console.log(this);
-          console.log(val);
-          this.setOutputView(val);
-        }.bind(this)
-      );
-      let ba2 = API.postCustomEvalChart(
-        this.state.eval_text,
-        this.props.columns.map((x) => x.value),
-        this.props.fileName
-      ).then(
-        function (val) {
-          console.log(this);
-          console.log(val);
-          this.setOutputChart(val);
-        }.bind(this)
-      );
-    }
-  };
   callEvaluationServerWithQuery = () => {
-    debugger;
-    this.setState({ eval_query: this.PrepareQuery() });
-    if (this.state.evals != -1) {
-      let bar = API.postEvaluationWithQuery(
-        this.state.eval_text,
-        this.props.columns.map((x) => x.value),
-        this.props.fileName,
-        this.state.eval_query
-      ).then(
-        function (val) {
-          this.setOutputResultTable(val);
-        }.bind(this)
-      );
-      let ba2 = API.postEvaluationChartWithQuery(
-        this.state.eval_text,
-        this.props.columns.map((x) => x.value),
-        this.props.fileName,
-        this.state.eval_query
-      ).then(
-        function (val) {
-          this.setOutputChart(val);
-        }.bind(this)
-      );
-    }
+    this.setState({ eval_query: this.PrepareQuery() }, function () {
+      if (this.state.evals != -1) {
+        let bar = API.postEvaluationWithQuery(
+          this.state.eval_text,
+          this.props.columns.map((x) => x.value),
+          this.props.fileName,
+          this.state.eval_query
+        ).then(
+          function (val) {
+            this.setOutputResultTable(val);
+          }.bind(this)
+        );
+        let ba2 = API.postEvaluationChartWithQuery(
+          this.state.eval_text,
+          this.props.columns.map((x) => x.value),
+          this.props.fileName,
+          this.state.eval_query
+        ).then(
+          function (val) {
+            this.setOutputChart(val);
+          }.bind(this)
+        );
+      }
+    });
   };
 
-  RunEvaluation = (event) => {
-    event.preventDefault();
-    let eval_value = this.state.eval_text;
-    if (
-      eval_value == "undefined" ||
-      eval_value === null ||
-      eval_value.trim() === ""
-    ) {
-      this.setState({ eval_text: this.state.eval }, () => {
-        this.callEvaluationServer();
-      });
-    } else {
-      this.callEvaluationServer();
-    }
-    MultiSelectCreator(1);
-  };
-
-  RunEvaluationWithQuery = (event) => {
-    if (this.state.evals != -1) {
-      let bar = API.PostSelectedColumns(
-        this.state.eval_text,
-        this.props.columns.map((x) => x.value),
-        this.props.fileName
-      ).then(
-        function (val) {
-          this.setOutputResultTable(val);
-        }.bind(this)
-      );
-    }
-  };
   GetColumnsAndComponents = (event) => {
     event.preventDefault();
     let eval_value = this.state.eval_text;
@@ -254,7 +196,6 @@ class EvalComp extends Component {
             // for future types of input
             default:
               break;
-
           }
         }
         else if (node.name === 'label') {
@@ -297,7 +238,6 @@ class EvalComp extends Component {
     }
   };
   setOutputResultTable = (value) => {
-    debugger;
     this.setState({ outputHtml: value });
   };
 
@@ -306,13 +246,7 @@ class EvalComp extends Component {
     this.setState({ eval_text: event.target.value });
   };
 
-  uuidv4 = () => {
-    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-    );
-  }
   PrepareQuery = () => {
-    debugger;
     let query = [];
     let nodesWithData = document.querySelectorAll('[data-id]');
     for (const node of nodesWithData) {

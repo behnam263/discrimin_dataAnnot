@@ -31,29 +31,24 @@ async function getHeadDataList(filename) {
   }
 }
 
-async function postCustomEval(evalCode, columnNames, fileName) {
+async function DeleteFileRow(filename) {
   return new Promise((resolve, reject) => {
-    let url = "/customCode";
+    let url = "/deleteFileRow";
     let parameters = JSON.stringify({
-      columns: columnNames,
-      evalCode: evalCode.toString(),
-      fileName: fileName.toString(),
+      filename: filename.name.toString(),
+      file_description: filename.description.toString()
     });
+
     fetch(baseURL + url, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: parameters,
+      method: 'DELETE',
+      body: parameters
     })
       .then((response) => {
         if (response.ok) {
           response.text().then(function (text) {
-          resolve(text); 
+            resolve(text);
           });
         } else {
-          console.log(text);
           reject("FAILURE");
         }
       })
@@ -63,40 +58,7 @@ async function postCustomEval(evalCode, columnNames, fileName) {
   });
 }
 
-async function postCustomEvalChart(evalCode, columnNames, fileName) {
-  return new Promise((resolve, reject) => {
-    let url = "/drawChart";
-    let parameters = JSON.stringify({
-      columns: columnNames,
-      evalCode: evalCode.toString(),
-      fileName: fileName.toString(),
-    });
-    fetch(baseURL + url, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: parameters,
-    })
-      .then((response) => {
-        if (response.ok) {
-          response.text().then(function (text) {
-          resolve(text); 
-          });
-        } else {
-          console.log(text);
-          reject("FAILURE");
-        }
-      })
-      .catch((err) => {
-        reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] });
-      }); // connection errors
-  });
-}
-
-
-async function postEvaluationWithQuery(evalCode, columnNames, fileName,query) {
+async function postEvaluationWithQuery(evalCode, columnNames, fileName, query) {
   return new Promise((resolve, reject) => {
     let url = "/resultQuery";
     let parameters = JSON.stringify({
@@ -116,10 +78,9 @@ async function postEvaluationWithQuery(evalCode, columnNames, fileName,query) {
       .then((response) => {
         if (response.ok) {
           response.text().then(function (text) {
-          resolve(text); 
+            resolve(text);
           });
         } else {
-          console.log(text);
           reject("FAILURE");
         }
       })
@@ -129,7 +90,7 @@ async function postEvaluationWithQuery(evalCode, columnNames, fileName,query) {
   });
 }
 
-async function postEvaluationChartWithQuery(evalCode, columnNames, fileName,query) {
+async function postEvaluationChartWithQuery(evalCode, columnNames, fileName, query) {
   return new Promise((resolve, reject) => {
     let url = "/drawChartQuery";
     let parameters = JSON.stringify({
@@ -149,10 +110,9 @@ async function postEvaluationChartWithQuery(evalCode, columnNames, fileName,quer
       .then((response) => {
         if (response.ok) {
           response.text().then(function (text) {
-          resolve(text); 
+            resolve(text);
           });
         } else {
-          console.log(text);
           reject("FAILURE");
         }
       })
@@ -180,7 +140,7 @@ async function PostSelectedColumns(evalCode, columnNames, fileName) {
       .then((response) => {
         if (response.ok) {
           response.text().then(function (text) {
-          resolve(text); 
+            resolve(text);
           });
         } else {
           reject("FAILURE");
@@ -208,9 +168,8 @@ async function getEvaluationFilesList() {
 const API = {
   getFileList,
   getHeadDataList,
-  postCustomEval,
+  DeleteFileRow,
   getEvaluationFilesList,
-  postCustomEvalChart,
   postEvaluationWithQuery,
   postEvaluationChartWithQuery,
   PostSelectedColumns

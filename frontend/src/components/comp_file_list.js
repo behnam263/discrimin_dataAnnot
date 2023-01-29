@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { Component } from "react";
 import API from "../api/api.js";
 import Table from "react-bootstrap/Table";
@@ -21,7 +20,18 @@ class FileListComp extends Component {
         });
       })
       .catch((errorObj) => {
-        console.log(errorObj);
+      });
+    event.preventDefault();
+  };  
+  deleteRows = (r) => {
+    this.setState({
+      S_selectedFile: r.name.toString(),
+    });
+    API.DeleteFileRow(r)
+      .then((d) => {
+        this.loadFileRows();
+      })
+      .catch((errorObj) => {
       });
     event.preventDefault();
   };
@@ -33,7 +43,7 @@ class FileListComp extends Component {
         <td>
           {
             <Button
-              variant="danger"
+              variant="primary"
               className="ml-2"
               type="button"
               onClick={() => this.selectRows(r)}
@@ -42,18 +52,34 @@ class FileListComp extends Component {
             </Button>
           }
         </td>
+        <td>
+          {
+            <Button
+              variant="danger"
+              className="ml-2"
+              type="button"
+              onClick={() => this.deleteRows(r)}
+            >
+              Delete
+            </Button>
+          }
+        </td>
       </tr>
     );
   };
 
-  componentDidMount() {
+  loadFileRows = () => {
     API.getFileList()
-      .then((r) => {
-        this.setState({ S_listOfFiles: r });
-      })
-      .catch((errorObj) => {
-        console.log(errorObj);
-      });
+    .then((r) => {
+      this.setState({ S_listOfFiles: r });
+    })
+    .catch((errorObj) => {
+   
+    });
+  }
+
+  componentDidMount() {
+    this.loadFileRows();
   }
   render() {
     return (
@@ -69,6 +95,7 @@ class FileListComp extends Component {
                     <th>File</th>
                     <th>Description</th>
                     <th>Select</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>

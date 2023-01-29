@@ -2,46 +2,50 @@ import os
 import pandas as pd
 import platform
 
+
 class FileMGM:
     def __init__(self):
         pass
 
     def getUploadFolder(self):
-        match platform.system():
-            case "Linux":
-                return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '/uploads/'
-            case "Windows":
-                return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '\\uploads\\'
-            case _:
-                return "Something's wrong with OS name"
-        return
+        system_name = platform.system()
+        if system_name == "Linux":
+            return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '/uploads/'
+        elif system_name == "Windows":
+            return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '\\uploads\\'
+        else:
+            return "Something's wrong with OS name"
 
     def getFormulaFolder(self):
-        match platform.system():
-            case "Linux":
-                return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '/Formulas/'
-            case "Windows":
-                return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '\\Formulas\\'
-            case _:
-                return "Something's wrong with OS name"
+        system_name = platform.system()
+        if system_name == "Linux":
+            return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '/Formulas/'
+        elif system_name == "Windows":
+            return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '\\Formulas\\'
+        else:
+            return "Something's wrong with OS name"
 
+    @property
     def get_output_component_folder(self):
-        match platform.system():
-            case "Linux":
-                return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '/Formulas/Components/'
-            case "Windows":
-                return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '\\Formulas\\Components\\'
-            case _:
-                return "Something's wrong with OS name"
+        system_name = platform.system()
+        if system_name == "Linux":
+            return os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '/Formulas/Components/'
+        elif system_name == "Windows":
+            return os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '\\Formulas\\Components\\'
+        else:
+            return "Something's wrong with OS name"
 
     def getFormulaFileAddress(self):
         return self.getFormulaFolder() + 'fileList.csv'
 
     def getListOfUpload(self):
-        # uploadPath=self.getUploadFolder()
         files = os.listdir(self.getUploadFolder())
         return files
-
+    def delete_uploaded_file(self,filename):
+        os.remove(self.getUploadFolder()+filename )
+        return None
     def getdataFrameofFile(self, path, separator, with_header):
         if separator is None and with_header is None:
             df = pd.read_csv(path)

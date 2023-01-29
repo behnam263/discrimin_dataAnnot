@@ -11,8 +11,8 @@ class GetData:
 
     def get_output_component_file(self, path):
         file_manager = FileMGM()
-        if file_manager.isFileExists(file_manager.get_output_component_folder() + path.strip()):
-            component_file = file_manager.gettextFile(file_manager.get_output_component_folder() + path.strip())
+        if file_manager.isFileExists(file_manager.get_output_component_folder + path.strip()):
+            component_file = file_manager.gettextFile(file_manager.get_output_component_folder + path.strip())
             return component_file
         else:
             return None
@@ -23,7 +23,10 @@ class GetData:
         for file in file_manager:
             self.fileList.append(TypeFile(file, file))
         return self.fileList
-
+    def delete_a_file(self,filename):
+        file_manager = FileMGM()
+        file_manager.delete_uploaded_file(filename)
+        return None
     def get_eval_list(self):
         file_manager = FileMGM()
         if file_manager.isFileExists(file_manager.getFormulaFileAddress()):
