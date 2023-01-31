@@ -6,6 +6,7 @@ discriminatory results of a given data set.
 * [General Info](#general-information)
 * [Technologies Used](#technologies-used)
 * [Features](#features)
+* [Prepared docker image](#Prepared-docker-image)
 * [Screenshots](#screenshots)
 * [Setup](#setup)
 * [Usage](#usage)
@@ -46,6 +47,10 @@ List the ready features here:
 - Select features to evaluate
 - Evaluate the result with respect to four models
 
+## Prepared docker image:
+https://hub.docker.com/r/behnam263/antsystem
+
+
 ## Prerequisites 
 You need to install Node.js and npm befor you start.
 
@@ -80,4 +85,5 @@ Using pycharm and its configuration set these parameters:
 > Working directory : directory where project is located ~\Project
 
 > script path: ~\Project\manage.py
+
 
