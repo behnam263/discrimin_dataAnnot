@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
 
-
 class Evaluations:
     def custom_code_run(self, code, column_values, query_dataframe, file_name, result_title):
         get_data = GetData([])
@@ -54,10 +53,10 @@ class Evaluations:
                 for column in column_values:
                     filtered_columns = filtered_columns[filtered_columns[str(column)].isin(query_table[str(column)])]
         else:
-            col = pd.DataFrame(query_dataframe[0]["value"])
-            col = col.rename(columns={col.columns[0]: input_columns_names[0]})
-            col = col.astype(str(column_values[input_columns_names[0]].dtype))
-            filtered_columns = column_values[column_values[input_columns_names[0]].isin(col[input_columns_names[0]])]
+            query_table = pd.DataFrame(query_dataframe[0]["value"])
+            query_table = query_table.rename(columns={query_table.columns[0]: input_columns_names[0]})
+            query_table = query_table.astype(str(column_values[input_columns_names[0]].dtype))
+            filtered_columns = column_values[column_values[input_columns_names[0]].isin(query_table[input_columns_names[0]])]
         # Filter Columns By Selection
 
         # Prepare Parameters for script
@@ -129,7 +128,9 @@ class Evaluations:
         int_values = list(map(int, column_values))
         data_column = data_column.iloc[:, int_values]
         column_array = list()
+
         for column in data_column.columns.tolist():
+            data_column = data_column.sort_values(by=column)
             column_array.append(data_column[column].unique())
             data_column_names.append(column)
         return data_column_names, column_array

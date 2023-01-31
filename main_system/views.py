@@ -12,45 +12,6 @@ import json
 
 @csrf_exempt
 @api_view(['POST'])
-def draw_chart(request):
-    get_data = GetData([])
-    if 'evalCode' in request.data:
-        eval_code = request.data['evalCode']
-        columns = request.data['columns']
-        file_name = request.data['fileName']
-        if eval_code is not None and eval_code != '':
-            code = ""
-            if eval_code.find("def f():") == -1:
-                (eval_file, eval_component) = get_data.get_eval_code_file(eval_code)
-                code = get_data.get_text_file(eval_file)
-                components_file_content = get_data.get_output_component_file(eval_component)
-            else:
-                (eval_file, eval_component) = get_data.get_eval_code_file("other")
-                components_file_content = get_data.get_output_component_file(eval_component)
-                code = eval_code
-
-            try:
-                evaluation_module = Evaluations()
-                return_value = evaluation_module.custom_code_run(code, columns, None, file_name,eval_code)
-                result = None
-                error_string = None
-                if len(return_value[1]) > 0:
-                    error_string = return_value[1]
-                else:
-                    result = return_value[0]
-            except Exception as exc2:
-                error_string = f"error:\n{exc2}\n"
-            if result is not None or error_string is None:
-                evaluation = Evaluations()
-                if file_name is not None and file_name != '':
-                    chart = evaluation.get_plot_dataframe(result, 'bar')
-                    return render(request, 'graph.html', {'chart': chart})
-            else:
-                result = error_string
-
-
-@csrf_exempt
-@api_view(['POST'])
 def draw_query_chart(request):
     get_data = GetData([])
     if 'evalCode' in request.data:
@@ -70,7 +31,7 @@ def draw_query_chart(request):
                 code = eval_code
 
             try:
-                return_value = evaluation_module.custom_code_run(code, columns, query_dataframe, file_name,eval_code)
+                return_value = evaluation_module.custom_code_run(code, columns, query_dataframe, file_name, eval_code)
                 result = None
                 error_string = None
                 if len(return_value[1]) > 0:
@@ -85,46 +46,6 @@ def draw_query_chart(request):
                     return render(request, 'graph.html', {'chart': chart})
             else:
                 result = error_string
-
-
-@csrf_exempt
-@api_view(['POST'])
-def general_evaluate(request):
-    controllers = Controllers()
-    get_data = GetData([])
-    return_value = ''
-    if 'evalCode' in request.data:
-        eval_code = request.data['evalCode']
-        columns = request.data['columns']
-        file_name = request.data['fileName']
-        if eval_code is not None and eval_code != '':
-            code = ""
-            if eval_code.find("def f():") == -1:
-                (eval_file, eval_component) = get_data.get_eval_code_file(eval_code)
-                code = get_data.get_text_file(eval_file)
-                components_file_content = get_data.get_output_component_file(eval_component)
-            else:
-                (eval_file, eval_component) = get_data.get_eval_code_file("other")
-                components_file_content = get_data.get_output_component_file(eval_component)
-                code = eval_code
-
-            try:
-                evaluation_module = Evaluations()
-                return_value = evaluation_module.custom_code_run(code, columns, None, file_name,eval_code)
-                result = None
-                error_string = None
-                if len(return_value[1]) > 0:
-                    error_string = return_value[1]
-                else:
-                    result = return_value[0]
-            except Exception as exc2:
-                error_string = f"error:\n{exc2}\n"
-            if result is not None or error_string is None:
-                result = controllers.replace_code_with_specific_template_name(components_file_content, request, result,
-                                                                              None)
-            else:
-                result = error_string
-    return HttpResponse(result, content_type="text/plain")
 
 
 @csrf_exempt
@@ -146,7 +67,7 @@ def query_in_results(request):
                 code = eval_code
             try:
                 evaluation_module = Evaluations()
-                return_value = evaluation_module.custom_code_run(code, columns, query_dataframe, file_name,eval_code)
+                return_value = evaluation_module.custom_code_run(code, columns, query_dataframe, file_name, eval_code)
                 result = None
                 error_string = None
                 if len(return_value[1]) > 0:

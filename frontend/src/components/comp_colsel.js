@@ -57,7 +57,6 @@ const ColSelection = (props) => {
 
   return (
     <div>
-      {console.log(data)}
       {data && (
         <div>
           <h3>Preview of selected file:</h3>
