@@ -17,4 +17,12 @@ def f():
                 df2 = pd.concat([df2, col1], axis=1)
     df = pd.DataFrame.empty
     correlation = df2.corr()
-    return correlation
+    for output_column in correlation:
+        for unchecked_column in unchecked_column_names:
+            if output_column.find(unchecked_column+"_") != -1:
+                correlation.drop(output_column, inplace=True, axis=1)
+    for output_column in correlation.index:
+        for checked_column in checked_column_names:
+            if output_column.find(checked_column + "_") != -1:
+                correlation.drop(output_column, inplace=True, axis='index')
+    return correlation.abs()

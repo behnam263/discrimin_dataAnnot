@@ -116,7 +116,7 @@ class Evaluations:
         return graph
 
     def get_plot_dataframe(self, df, chart_type):
-        df.plot(kind=chart_type)
+        df.plot(kind=chart_type, figsize=(11,5))
         # bar can be replaced by
         graph = self.get_graph()
         return graph
