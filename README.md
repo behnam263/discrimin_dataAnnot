@@ -4,16 +4,12 @@ Bayesian statistical inference that aims to warn about the risk of
 discriminatory results of a given data set.
 ## Table of Contents
 * [General Info](#general-information)
+* [References](#References)
 * [Technologies Used](#technologies-used)
 * [Features](#features)
 * [Prepared docker image](#Prepared-docker-image)
-* [Screenshots](#screenshots)
 * [Setup](#setup)
 * [Usage](#usage)
-* [Project Status](#project-status)
-* [Room for Improvement](#room-for-improvement)
-* [Acknowledgements](#acknowledgements)
-* [Contact](#contact)
 <!-- * [License](#license) -->
 
 
@@ -34,6 +30,15 @@ of individuals to have a lower probability of being represented.
     - Training Likelihood
 <!-- You don't have to answer all the questions - just the ones relevant to your project. -->
 
+## References
+All datasets and algorithms are taken and clarified by the following citation:
+
+<a id="1">https://arxiv.org/abs/2101.11358</a> 
+
+Elena Beretta, Antonio Vetrò, Bruno Lepri, Juan Carlos De Martin
+
+Detecting discriminatory risk through
+data annotation based on Bayesian inferences, 
 
 ## Technologies Used
 - Django
