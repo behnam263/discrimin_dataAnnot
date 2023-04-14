@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
+import numpy as np
 
 class Evaluations:
     def custom_code_run(self, code, column_values, query_dataframe, file_name, result_title):
@@ -29,35 +30,37 @@ class Evaluations:
                                 x["tag"] == "INPUT" and x["type"] == "checkbox" and x["value"] == True]
         unchecked_column_names = [x["id"].split(' index, ')[0].strip() for x in query_dataframe if
                                   x["tag"] == "INPUT" and x["type"] == "checkbox" and x["value"] == False]
-        if int_values.__len__() > 1:
-            query_table = pd.DataFrame.empty
-            for cols_index in range(0, len(query_columns) - 1, 2):
-                col1 = pd.DataFrame(query_columns[cols_index]["value"])
-                col1 = col1.rename(columns={col1.columns[0]: input_columns_names[cols_index]})
-                col1 = col1.astype(str(column_values[input_columns_names[cols_index]].dtype))
-                col2 = pd.DataFrame(query_columns[cols_index + 1]["value"])
-                col2 = col2.rename(columns={col2.columns[0]: input_columns_names[cols_index + 1]})
-                col2 = col2.astype(str(column_values[input_columns_names[cols_index + 1]].dtype))
-                col3 = pd.concat([col1, col2], axis=1)
-                if query_table == pd.DataFrame.empty:
-                    query_table = col3
-                else:
-                    query_table = pd.concat([query_table, col3], axis=1)
-            if len(query_columns) % 2 > 0:
-                col1 = pd.DataFrame(query_columns[len(query_columns) - 1]["value"])
-                col1 = col1.rename(columns={col1.columns[0]: input_columns_names[len(query_columns) - 1]})
-                col1 = col1.astype(str(column_values[input_columns_names[len(query_columns) - 1]].dtype))
-                query_table = pd.concat([query_table, col1], axis=1)
-            filtered_columns = column_values
-            if query_dataframe is not None:
-                for column in column_values:
-                    filtered_columns = filtered_columns[filtered_columns[str(column)].isin(query_table[str(column)])]
-        else:
-            query_table = pd.DataFrame(query_dataframe[0]["value"])
-            query_table = query_table.rename(columns={query_table.columns[0]: input_columns_names[0]})
-            query_table = query_table.astype(str(column_values[input_columns_names[0]].dtype))
-            filtered_columns = column_values[column_values[input_columns_names[0]].isin(query_table[input_columns_names[0]])]
-        # Filter Columns By Selection
+        filtered_columns = pd.DataFrame.empty
+        query_table = pd.DataFrame.empty
+        if len(query_columns) > 0:
+            if int_values.__len__() > 1:
+                for cols_index in range(0, len(query_columns) - 1, 2):
+                    col1 = pd.DataFrame(query_columns[cols_index]["value"])
+                    col1 = col1.rename(columns={col1.columns[0]: input_columns_names[cols_index]})
+                    col1 = col1.astype(str(column_values[input_columns_names[cols_index]].dtype))
+                    col2 = pd.DataFrame(query_columns[cols_index + 1]["value"])
+                    col2 = col2.rename(columns={col2.columns[0]: input_columns_names[cols_index + 1]})
+                    col2 = col2.astype(str(column_values[input_columns_names[cols_index + 1]].dtype))
+                    col3 = pd.concat([col1, col2], axis=1)
+                    if query_table == pd.DataFrame.empty:
+                        query_table = col3
+                    else:
+                        query_table = pd.concat([query_table, col3], axis=1)
+                if len(query_columns) % 2 > 0:
+                    col1 = pd.DataFrame(query_columns[len(query_columns) - 1]["value"])
+                    col1 = col1.rename(columns={col1.columns[0]: input_columns_names[len(query_columns) - 1]})
+                    col1 = col1.astype(str(column_values[input_columns_names[len(query_columns) - 1]].dtype))
+                    query_table = pd.concat([query_table, col1], axis=1)
+                filtered_columns = column_values
+                if query_dataframe is not None:
+                    for column in column_values:
+                        filtered_columns = filtered_columns[filtered_columns[str(column)].isin(query_table[str(column)])]
+            else:
+                query_table = pd.DataFrame(query_dataframe[0]["value"])
+                query_table = query_table.rename(columns={query_table.columns[0]: input_columns_names[0]})
+                query_table = query_table.astype(str(column_values[input_columns_names[0]].dtype))
+                filtered_columns = column_values[column_values[input_columns_names[0]].isin(query_table[input_columns_names[0]])]
+            # Filter Columns By Selection
 
         # Prepare Parameters for script
         global_vars = {}
@@ -70,7 +73,8 @@ class Evaluations:
             "checked_column_names": checked_column_names,
             "unchecked_column_names": unchecked_column_names,
             "query_table": query_table,
-            "pd": pd
+            "pd": pd,
+            "np": np
         }
         # Prepare Parameters for script
 
@@ -104,21 +108,20 @@ class Evaluations:
         return_workaround.append(output_error)
         return return_workaround
 
-    def get_graph(self):
+    def get_plot_dataframe(self, df, chart_type):
+        if df.columns.nlevels > 1:
+            df.columns = df.columns.droplevel()
+        df.plot(kind=chart_type, figsize=(11,5))
         buffer = BytesIO()
         plt.tight_layout()
         plt.savefig(buffer, format='png')
         buffer.seek(0)
         image_png = buffer.getvalue()
+        plt.close()
         graph = base64.b64encode(image_png)
         graph = graph.decode('utf_8')
         buffer.close()
-        return graph
 
-    def get_plot_dataframe(self, df, chart_type):
-        df.plot(kind=chart_type, figsize=(11,5))
-        # bar can be replaced by
-        graph = self.get_graph()
         return graph
 
     def get_selected_columns(self, column_values, file_name):

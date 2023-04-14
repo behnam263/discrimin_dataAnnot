@@ -1,28 +1,28 @@
 def f():
-    df = pd.get_dummies(column_values, columns=input_columns_names)
-    df2 = None
-    for column in input_columns_names:
-        for input_column_value in query_table[column]:
-            if str(input_column_value).lower()=="nan":
-                continue
-            if(isinstance(input_column_value, int)):
-                input_column_value=str(int(input_column_value))
-            else:
-                input_column_value=str(input_column_value)
-            col1 = pd.DataFrame(df[str(column) + "_" + input_column_value])
-            col1.rename(columns={col1.columns[0]: str(column) + "_" + str(input_column_value)})
-            if df2 is None:
-                df2 = col1
-            else:
-                df2 = pd.concat([df2, col1], axis=1)
-    df = pd.DataFrame.empty
-    correlation = df2.corr()
-    for output_column in correlation:
-        for unchecked_column in unchecked_column_names:
-            if output_column.find(unchecked_column+"_") != -1:
-                correlation.drop(output_column, inplace=True, axis=1)
-    for output_column in correlation.index:
-        for checked_column in checked_column_names:
-            if output_column.find(checked_column + "_") != -1:
-                correlation.drop(output_column, inplace=True, axis='index')
-    return correlation.abs()
+    df = column_values
+    col1 = checked_column_names[0]
+    col2 = unchecked_column_names[0]
+    # ---create the contingency table---
+    df_cont = pd.crosstab(index=df[col1], columns=df[col2])
+
+    # ---calculate degree of freedom---
+    degree_f = (df_cont.shape[0] - 1) * (df_cont.shape[1] - 1)
+    # ---sum up the totals for row and columns---
+    df_cont.loc[:, 'Total'] = df_cont.sum(axis=1)
+    df_cont.loc['Total'] = df_cont.sum()
+    all_len=df_cont.iloc[:-1, :-1].sum().sum()
+    # ---create the expected value dataframe---
+    df_exp = df_cont.copy()
+    df_exp.iloc[:, :] = np.multiply.outer(
+        df_cont.sum(1).values, df_cont.sum().values) / df_cont.sum().sum()
+
+    # calculate chi-square values
+    df_chi2 = ((df_cont - df_exp) ** 2) / df_exp
+    df_chi2.loc[:, 'Total'] = df_chi2.sum(axis=1)
+    df_chi2.loc['Total'] = df_chi2.sum()
+
+    # ---get chi-square score---
+    chi_square_score = df_chi2.iloc[:-1, :-1].sum().sum()
+    contingency_coefficient_c = np.sqrt(chi_square_score / (all_len + chi_square_score))
+    effective_size_w = np.sqrt(contingency_coefficient_c ** 2 / (1-contingency_coefficient_c ** 2))
+    return pd.DataFrame({'effective_size_w': effective_size_w , 'contingency_coefficient_c' :contingency_coefficient_c}, index=['Dependence'])

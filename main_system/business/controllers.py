@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from main_system.business.get_data import GetData
 from django.http import HttpResponse
-
+import pandas as pd
 
 class Controllers:
 
@@ -213,24 +213,26 @@ class Controllers:
         template = ""
         try:
             if template_type == "table":
+                if input_data.columns.nlevels > 1:
+                    input_data.columns = input_data.columns.droplevel()
                 template = input_data.to_html()
-                template = self.fix_table_header(input_data, template)
+                template = self.fix_table_header(isinstance(input_data.index, pd.MultiIndex),template)
                 template = template.replace("text-align: right", "text-align: center")
-                template = template.replace("class=\"dataframe\"",
-                                            "class=\"table table-hover\"")
+                template = template.replace("class=\"dataframe\"", "class=\"table table-hover\"")
                 template = template.replace("<tr>", "<tr style=\"text-align: center;\">")
+                template = template.replace("<td colspan=", "<td colspan=")
         except Exception as exc:
             node = None
         return template
 
-    def fix_table_header(self, input_data, template):
+    def fix_table_header(self,multi_index, template):
         first_of_row1 = template.find("<th></th>")
         end_of_row1 = template[template.find("<th></th>"):].find("<tr>") + template.find("<th></th>")
         row1 = template[first_of_row1:end_of_row1]
-        while row1.find("<th></th>") != -1:
-            row1 = row1.replace("<th></th>", "")
-        row1 = row1.replace("<th>", "<td colspan=\"" + str(len(input_data.columns) +
-                                                           input_data.index.to_series().nunique()) + "\">")
+        row1 = row1.replace("<th>", "<td colspan=\"1\" >")
         row1 = row1.replace("th", "td")
-        template = template[:first_of_row1] + row1 + template[end_of_row1:]
+        if multi_index:
+            template = template[:first_of_row1] + template[end_of_row1:]
+        else:
+            template = template[:first_of_row1] + row1 + template[end_of_row1:]
         return template
