@@ -111,7 +111,7 @@ class Evaluations:
     def get_plot_dataframe(self, df, chart_type):
         if df.columns.nlevels > 1:
             df.columns = df.columns.droplevel()
-        df.plot(kind=chart_type, figsize=(11,5))
+        df.plot(kind=chart_type, figsize=(11,5),fontsize=14,)
         buffer = BytesIO()
         plt.tight_layout()
         plt.savefig(buffer, format='png')

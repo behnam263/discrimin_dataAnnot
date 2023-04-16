@@ -19,10 +19,9 @@ class FileListComp extends Component {
           S_data: d,
         });
       })
-      .catch((errorObj) => {
-      });
+      .catch((errorObj) => {});
     event.preventDefault();
-  };  
+  };
   deleteRows = (r) => {
     this.setState({
       S_selectedFile: r.name.toString(),
@@ -31,8 +30,7 @@ class FileListComp extends Component {
       .then((d) => {
         this.loadFileRows();
       })
-      .catch((errorObj) => {
-      });
+      .catch((errorObj) => {});
     event.preventDefault();
   };
   createRows = (r) => {
@@ -48,7 +46,7 @@ class FileListComp extends Component {
               type="button"
               onClick={() => this.selectRows(r)}
             >
-              select
+              Select
             </Button>
           }
         </td>
@@ -70,13 +68,17 @@ class FileListComp extends Component {
 
   loadFileRows = () => {
     API.getFileList()
-    .then((r) => {
-      this.setState({ S_listOfFiles: r });
-    })
-    .catch((errorObj) => {
-   
-    });
-  }
+      .then((r) => {
+        this.setState({ S_listOfFiles: r });
+      })
+      .catch((errorObj) => {});
+  };
+
+  refereshValues = () => {
+    this.state.S_data = [];
+    this.state.S_selectedFile = "";
+    document.getElementById("app").scrollIntoView();
+  };
 
   componentDidMount() {
     this.loadFileRows();
@@ -87,7 +89,7 @@ class FileListComp extends Component {
         <div className="row d-flex justify-content-center text-center">
           <div className="col-1"></div>
           <div className="col-10">
-          <h3>Loaded Data Files</h3>
+            <h3>Loaded Data Files</h3>
             <div className="pb-3">
               <Table striped bordered hover variant="white">
                 <thead className="BackgroundThemeColor">
@@ -108,6 +110,7 @@ class FileListComp extends Component {
               <ColSelection
                 data={this.state.S_data}
                 fileName={this.state.S_selectedFile}
+                refereshValues={this.refereshValues}
               />
             </div>
           </div>

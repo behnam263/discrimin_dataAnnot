@@ -90,7 +90,7 @@ async function postEvaluationWithQuery(evalCode, columnNames, fileName, query) {
   });
 }
 
-async function postEvaluationChartWithQuery(evalCode, columnNames, fileName, query) {
+async function postEvaluationChartWithQuery(evalCode, columnNames, fileName, query,chartType) {
   return new Promise((resolve, reject) => {
     let url = "/drawChartQuery";
     let parameters = JSON.stringify({
@@ -98,6 +98,7 @@ async function postEvaluationChartWithQuery(evalCode, columnNames, fileName, que
       evalCode: evalCode.toString(),
       fileName: fileName.toString(),
       query: query.toString(),
+      chartType: chartType.toString(),
     });
     fetch(baseURL + url, {
       method: "POST",

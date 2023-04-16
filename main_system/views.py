@@ -18,6 +18,7 @@ def draw_query_chart(request):
         eval_code = request.data['evalCode']
         columns = request.data['columns']
         file_name = request.data['fileName']
+        chart_type = request.data['chartType']
         if request.data['query'] is None:
             return None
         query = request.data['query']
@@ -42,7 +43,9 @@ def draw_query_chart(request):
                 error_string = f"error:\n{exc2}\n"
             if result is not None or error_string is None:
                 if file_name is not None and file_name != '':
-                    chart = evaluation_module.get_plot_dataframe(result, 'bar')
+                    if chart_type is None:
+                        chart_type = 'bar'
+                    chart = evaluation_module.get_plot_dataframe(result, chart_type)
                     return render(request, 'graph.html', {'chart': chart})
             else:
                 result = error_string
